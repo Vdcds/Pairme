@@ -1,18 +1,13 @@
-// prisma.ts
 import { PrismaClient } from "@prisma/client";
-
-let prisma: PrismaClient;
-
-if (process.env.NODE_ENV === "production") {
-  // In production mode, create a new PrismaClient instance on each request
-  prisma = new PrismaClient();
-} else {
-  // In development mode, use a global variable to avoid creating multiple PrismaClient instances
-  // See https://pris.ly/d/help-global-client
-  if (!(global as any).prisma) {
-    (global as any).prisma = new PrismaClient();
-  }
-  prisma = (global as any).prisma;
-}
-
-export default prisma;
+// Prisma Client is attached to the global object in development
+// exhausting your database connection limit.
+//
+// Learn more:
+// https://pris.ly/d/help/next-js-best-practices
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
+export const prisma =
+  globalForPrisma.prisma ||
+  new PrismaClient({
+    log: ["query"],
+  });
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma;
