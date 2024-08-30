@@ -29,7 +29,7 @@ const Navbar: React.FC = () => {
   const navItems = [
     { name: "Home", href: "/" },
     { name: "Join Room", href: "/join-room" },
-    { name: "New Room", href: "/new-room" },
+    { name: "New Room", href: "/create-room" },
   ];
 
   return (
@@ -37,7 +37,16 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <span className="text-2xl font-bold text-primary">PairMe</span>
+            <Image
+              src={"/logo.png"}
+              width={62}
+              height={62}
+              alt="logo"
+              className="m-2 p-2 rounded-md"
+            ></Image>
+            <span className="text-2xl font-bold text-primary hover:underline hover:animate-pulse hover:to-red-200">
+              Pair-Me
+            </span>
           </div>
           <div className="hidden md:flex items-center space-x-4">
             {navItems.map((item) => (
@@ -73,7 +82,9 @@ const Navbar: React.FC = () => {
                       height={32}
                       className="rounded-full"
                     />
-                    <span>{session.user?.name}</span>
+                    <span className="hover:underline text-md">
+                      {session.user?.name}
+                    </span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
