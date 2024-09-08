@@ -27,11 +27,13 @@ export async function POST(request: NextRequest) {
         name: roomData.name,
         Language: roomData.Language,
         GithubRepo: roomData.GithubRepo,
-        RoomDescription: roomData.RoomDescription,
-        RoomTags: roomData.RoomTags, // Ensure this matches the schema
+        description: roomData.description,
+        Roomtags: roomData.Roomtags,
+        ZenLevel: roomData.ZenLevel,
+        // Ensure this matches the schema
         user: {
           connect: {
-            email: user.email, // Ensure email is unique in the User model
+            id: user.id, // Ensure email is unique in the User model
           },
         },
       },
@@ -43,6 +45,18 @@ export async function POST(request: NextRequest) {
     console.error("Error creating room:", error);
     return NextResponse.json(
       { error: "Failed to create room" },
+      { status: 500 }
+    );
+  }
+}
+export async function GET() {
+  try {
+    const allRooms = await prisma.room.findMany();
+    return NextResponse.json({ rooms: allRooms });
+  } catch (error) {
+    console.error("Error fetching rooms:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch rooms" },
       { status: 500 }
     );
   }

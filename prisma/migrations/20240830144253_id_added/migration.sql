@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Session" ALTER COLUMN "id" SET DATA TYPE TEXT,
+ADD CONSTRAINT "Session_pkey" PRIMARY KEY ("id");

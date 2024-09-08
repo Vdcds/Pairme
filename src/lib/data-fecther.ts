@@ -17,3 +17,23 @@ export async function getRoom(roomId: string) {
 
   return room;
 }
+export async function deleteRoom(roomId: string) {
+  unstable_noStore();
+
+  try {
+    // Delete the room from the database
+    const deletedRoom = await prisma.room.delete({
+      where: {
+        id: roomId,
+      },
+    });
+
+    // You might want to perform additional cleanup here,
+    // such as deleting associated records in other tables
+
+    return deletedRoom;
+  } catch (error) {
+    console.error("Error deleting room:", error);
+    throw new Error("Failed to delete room");
+  }
+}

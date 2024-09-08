@@ -1,70 +1,130 @@
 import React from "react";
 import { Room } from "@prisma/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+import { revalidatePath } from "next/cache";
+import { Laptop, Database, Users, Edit, Trash2 } from "lucide-react";
+import { getRooms, deleteRoom } from "@/lib/data-fecther";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { getRooms } from "@/lib/data-fecther";
+import { Badge } from "@/components/ui/badge";
+
+const languageEmojis: { [key: string]: string } = {
+  JavaScript: "🟨",
+  Python: "🐍",
+  Java: "☕",
+  "C++": "🔷",
+  Ruby: "💎",
+  Go: "🐹",
+  Rust: "🦀",
+  TypeScript: "🔵",
+  PHP: "🐘",
+  Swift: "🍎",
+};
 
 export default async function Home() {
   const rooms = await getRooms();
 
-  return (
-    <div className="h-screen flex flex-col justify-center items-center overflow-hidden">
-      <main className="w-full max-w-6xl mx-auto px-4 lg:px-6 h-full">
-        <h1 className="text-3xl font-semibold text-gray-800 dark:text-gray-100 mb-4 text-center">
-          Welcome to PairMe
-        </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 text-center">
-          Discover and join coding rooms
-        </p>
+  async function handleDeleteRoom(roomId: string) {
+    "use server";
+    await deleteRoom(roomId);
+    revalidatePath("/");
+  }
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto h-[70%]">
+  return (
+    <div className="min-h-screen bg-stone-100 dark:bg-stone-900 p-4 sm:p-8 flex flex-col">
+      <header className="mb-8 text-center">
+        <h1 className="text-4xl sm:text-5xl font-light text-stone-700 dark:text-stone-300 mb-4 font-mono">
+          Code Collab Rooms
+        </h1>
+        <p className="text-lg text-stone-600 dark:text-stone-400 mb-6 font-mono italic">
+          Where ideas compile and friendships debug 🚀
+        </p>
+        <div className="flex flex-wrap justify-center gap-2">
+          {["Hosted on Edge", "PostgreSQL", "GetStream.io"].map(
+            (tech, index) => (
+              <Badge
+                key={index}
+                variant="secondary"
+                className="bg-stone-200 dark:bg-stone-700 text-stone-700 dark:text-stone-300"
+              >
+                {
+                  [
+                    <Laptop key="laptop" />,
+                    <Database key="database" />,
+                    <Users key="users" />,
+                  ][index]
+                }
+                <span className="ml-1">{tech}</span>
+              </Badge>
+            )
+          )}
+        </div>
+      </header>
+
+      <main className="flex-grow">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           {rooms.map((room: Room) => (
             <Card
               key={room.id}
-              className="bg-white dark:bg-gray-800 shadow-md hover:shadow-lg transition-shadow duration-300"
+              className="bg-white/50 dark:bg-stone-800/50 backdrop-blur-sm border-stone-200 dark:border-stone-700"
             >
-              <CardHeader className="border-b border-gray-200 dark:border-gray-700">
-                <CardTitle className="text-xl font-medium text-gray-800 dark:text-gray-200">
-                  {room.name}
+              <CardHeader>
+                <CardTitle className="font-normal text-stone-700 dark:text-stone-300 flex items-center font-mono">
+                  {languageEmojis[room.Language] || "💻"} {room.name}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-4">
-                <div className="space-y-2 mb-4">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    <span className="font-medium">Language:</span>{" "}
-                    {room.Language}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    <span className="font-medium">Github Repo:</span>{" "}
-                    {room.GithubRepo}
-                  </p>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
-                    {room.RoomDescription}
-                  </p>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
-                    {room.RoomTags}
-                  </p>
-                </div>
-                <Button
-                  className="w-full bg-gray-500 hover:bg-gray-600 text-white transition-colors duration-300"
-                  asChild
-                >
-                  <a href={`/rooms/${room.id}`}>Join This Room</a>
-                </Button>
+              <CardContent>
+                <p className="text-stone-600 dark:text-stone-400 font-mono text-sm">
+                  {room.Roomtags}
+                </p>
               </CardContent>
+              <CardFooter className="justify-between">
+                <Button
+                  asChild
+                  variant="default"
+                  className="bg-stone-600 hover:bg-stone-700"
+                >
+                  <Link href={`/rooms/${room.id}`}>Join Room</Link>
+                </Button>
+                <div className="flex gap-2">
+                  <Button asChild variant="outline">
+                    <Link href={`/edit-room/${room.id}`}>
+                      <Edit size={16} className="mr-1" /> Edit
+                    </Link>
+                  </Button>
+                  <form action={handleDeleteRoom.bind(null, room.id)}>
+                    <Button
+                      type="submit"
+                      variant="ghost"
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </form>
+                </div>
+              </CardFooter>
             </Card>
           ))}
         </div>
-
-        <div className="mt-4 text-center">
+        <div className="text-center">
           <Button
-            className="bg-gray-800 hover:bg-gray-900 text-white dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors duration-300"
             asChild
+            className="bg-stone-600 hover:bg-stone-700 text-white font-mono"
           >
-            <a href="/create-room">Create New Room</a>
+            <Link href="/create-room">Create New Room</Link>
           </Button>
         </div>
       </main>
+
+      <footer className="mt-8 text-center text-stone-600 dark:text-stone-400 font-mono text-sm">
+        Happy Coding! 👩‍💻👨‍💻
+      </footer>
     </div>
   );
 }

@@ -44,11 +44,11 @@ export default function RoomCards({ rooms }: RoomCardProps) {
                 </div>
                 <div className="flex items-start text-gray-700 dark:text-gray-200">
                   <FileText className="mr-2 h-4 w-4 mt-1 flex-shrink-0" />
-                  <p className="text-sm">{room.RoomDescription}</p>
+                  <p className="text-sm">{room.description}</p>
                 </div>
                 <div className="flex items-start text-gray-700 dark:text-gray-200">
                   <Tag className="mr-2 h-4 w-4 mt-1 flex-shrink-0" />
-                  <p className="text-sm">{room.RoomTags}</p>
+                  <p className="text-sm">{room.Roomtags}</p>
                 </div>
                 <div className="flex justify-between items-center mt-4">
                   <Button
