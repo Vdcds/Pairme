@@ -1,8 +1,19 @@
 import { prisma } from "@/lib/prisma";
 import { unstable_noStore } from "next/cache";
-export async function getRooms() {
+export async function getRooms(searchQuery?: string) {
   unstable_noStore();
-  const rooms = await prisma.room.findMany();
+  const rooms = await prisma.room.findMany({
+    where: searchQuery
+      ? {
+          OR: [
+            { name: { contains: searchQuery, mode: "insensitive" } },
+            { description: { contains: searchQuery, mode: "insensitive" } },
+            { Language: { contains: searchQuery, mode: "insensitive" } },
+            { Roomtags: { hasSome: [searchQuery] } },
+          ],
+        }
+      : undefined,
+  });
   return rooms;
 }
 

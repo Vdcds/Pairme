@@ -8,11 +8,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-
 const ClientVideoPlayer = dynamic(
   () =>
     import("@/components/video-player").then((mod) => mod.ClientVideoPlayer),
-  { ssr: false }
+  { ssr: false },
 );
 
 export default async function RoomPage({
@@ -63,11 +62,11 @@ export default async function RoomPage({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-8">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="w-full grid grid-cols-2 lg:grid-cols-3 gap-8">
         {/* Video Player Section */}
-        <div className="lg:col-span-2">
-          <Card className="bg-white dark:bg-gray-800 shadow-lg overflow-hidden">
-            <CardHeader className="bg-gray-800 dark:bg-gray-700 text-white p-4">
+        <div className="lg:col-span-3">
+          <Card className=" text-lg text-center border-2 border-black shadow-md shadow-black overflow-hidden">
+            <CardHeader className="bg-gray-800  text-white p-4">
               <CardTitle className="text-2xl font-bold">{room.name}</CardTitle>
             </CardHeader>
             <CardContent className="p-0">

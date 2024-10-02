@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import "@stream-io/video-react-sdk/dist/css/styles.css";
 import { Room } from "@prisma/client";
 import {
@@ -12,15 +13,18 @@ import {
   StreamVideoClient,
 } from "@stream-io/video-react-sdk";
 import { useSession } from "next-auth/react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { generateTokenAction } from "@/app/rooms/[roomid]/actions";
 import { useRouter } from "next/navigation";
+
 const apiKey = process.env.NEXT_PUBLIC_GET_STREAM_API_KEY!;
+
 export function ClientVideoPlayer({ room }: { room: Room }) {
   const session = useSession();
   const [client, setClient] = useState<StreamVideoClient | null>(null);
   const [call, setCall] = useState<Call | null>(null);
   const router = useRouter();
+
   useEffect(() => {
     if (!room) return;
     if (!session.data) {
@@ -47,25 +51,26 @@ export function ClientVideoPlayer({ room }: { room: Room }) {
         .catch(console.error);
     };
   }, [session, room]);
+
   return (
-    client &&
-    call && (
-      <StreamVideo client={client}>
-        {" "}
-        <StreamTheme>
-          {" "}
-          <StreamCall call={call}>
-            {" "}
-            <SpeakerLayout />{" "}
-            <CallControls
-              onLeave={() => {
-                router.push("/");
-              }}
-            />{" "}
-            <CallParticipantsList onClose={() => undefined} />{" "}
-          </StreamCall>{" "}
-        </StreamTheme>{" "}
-      </StreamVideo>
-    )
+    <>
+      {client && call && (
+        <div className="custom-video-container mt-2">
+          <StreamVideo client={client}>
+            <StreamTheme as="main" className="pt-3  mt-2 ">
+              <StreamCall call={call}>
+                <SpeakerLayout />
+                <CallControls
+                  onLeave={() => {
+                    router.push("/");
+                  }}
+                />
+                <CallParticipantsList onClose={() => undefined} />
+              </StreamCall>
+            </StreamTheme>
+          </StreamVideo>
+        </div>
+      )}
+    </>
   );
 }

@@ -7,63 +7,24 @@ async function main() {
     {
       name: "Aarav Sharma",
       email: "aarav.sharma@example.com",
+      rooms: {
+        create: {
+          name: "Aarav's Room",
+          description: "A coding haven for Aarav Sharma",
+        },
+      },
     },
     {
       name: "Vivaan Patel",
       email: "vivaan.patel@example.com",
+      rooms: {
+        create: {
+          name: "Vivaan's Room",
+          description: "Vivaan Patel's creative space",
+        },
+      },
     },
-    {
-      name: "Aditya Verma",
-      email: "aditya.verma@example.com",
-    },
-    {
-      name: "Ishaan Joshi",
-      email: "ishaan.joshi@example.com",
-    },
-    {
-      name: "Krishna Rao",
-      email: "krishna.rao@example.com",
-    },
-    {
-      name: "Arjun Mehta",
-      email: "arjun.mehta@example.com",
-    },
-    {
-      name: "Rohan Singh",
-      email: "rohan.singh@example.com",
-    },
-    {
-      name: "Kabir Das",
-      email: "kabir.das@example.com",
-    },
-    {
-      name: "Rahul Kumar",
-      email: "rahul.kumar@example.com",
-    },
-    {
-      name: "Aryan Jain",
-      email: "aryan.jain@example.com",
-    },
-    {
-      name: "Ayaan Gupta",
-      email: "ayaan.gupta@example.com",
-    },
-    {
-      name: "Siddharth Naik",
-      email: "siddharth.naik@example.com",
-    },
-    {
-      name: "Dev Sharma",
-      email: "dev.sharma@example.com",
-    },
-    {
-      name: "Vikram Nair",
-      email: "vikram.nair@example.com",
-    },
-    {
-      name: "Yash Raj",
-      email: "yash.raj@example.com",
-    },
+    // ... other users
   ];
 
   for (const user of users) {
@@ -81,7 +42,7 @@ async function main() {
       await prisma.user.create({
         data: user,
       });
-      console.log(`Created user: ${user.name}`);
+      console.log(`Created user and room for: ${user.name}`);
     }
   }
 }

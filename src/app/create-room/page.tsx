@@ -1,5 +1,5 @@
 import React from "react";
-import { CreateZenRealmForm } from "./user-form";
+import CreateZenRealmForm from "./user-form";
 
 const room = () => {
   return (
