@@ -50,14 +50,14 @@ model Session {
 model Room {
   id          String   @id @default(cuid())
   name        String
-  Language    String @default("TypeScript/Javascript")
-  GithubRepo  String @default("Arghhhh Its Still Local")
-  description String   @default("Embrace the silence of an empty description.")
-  Roomtags        String[] @default(["typeScript, javascript"])
-  ZenLevel    String @default("Master")
+  Language    String   @default("TypeScript/Javascript")
+  GithubRepo  String   @default("Arghhhh Its Still Local")
   userId      String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  Roomtags    String[] @default(["typeScript, javascript"])
+  ZenLevel    String   @default("Master")
+  description String   @default("Embrace the silence of an empty description.")
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
