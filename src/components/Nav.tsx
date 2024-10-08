@@ -94,7 +94,7 @@ export default function Navbar() {
             ))}
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
             <form onSubmit={handleSearch} className="relative hidden md:block">
               <Input
                 type="text"
