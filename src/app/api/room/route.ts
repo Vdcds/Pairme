@@ -1,47 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { z } from "zod";
+
+const roomSchema = z.object({
+  name: z.string().min(2).max(50),
+  language: z.string().min(1),
+  githubRepo: z.string().url().or(z.literal("")),
+  description: z.string().min(10).max(255),
+  roomTags: z.array(z.string()).min(1),
+  zenLevel: z.string().min(1),
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    console.log("Received request body:", body);
-
-    const { roomData, user } = body;
-
-    if (!user || !user.email) {
-      console.error("User or user email is missing from the request");
-      return NextResponse.json(
-        { error: "User email is required" },
-        { status: 400 }
-      );
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Sign in to create a room." }, { status: 401 });
     }
 
-    // Verify the field name `RoomDescription` matches the schema
-    console.log("Creating room with data:", {
-      ...roomData,
-      userEmail: user.email,
-    });
+    const { roomData } = await request.json();
+    const data = roomSchema.parse(roomData);
 
     const newRoom = await prisma.room.create({
       data: {
-        name: roomData.name,
-        Language: roomData.Language,
-        GithubRepo: roomData.GithubRepo,
-        description: roomData.description,
-        Roomtags: roomData.Roomtags,
-        ZenLevel: roomData.ZenLevel,
-        // Ensure this matches the schema
-        user: {
-          connect: {
-            id: user.id, // Ensure email is unique in the User model
-          },
-        },
+        name: data.name,
+        Language: data.language,
+        GithubRepo: data.githubRepo,
+        description: data.description,
+        Roomtags: data.roomTags,
+        ZenLevel: data.zenLevel,
+        user: { connect: { id: session.user.id } },
       },
     });
 
     console.log("Room created successfully:", newRoom);
     return NextResponse.json(newRoom, { status: 201 });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: "Please check the room details and try again." }, { status: 400 });
+    }
     console.error("Error creating room:", error);
     return NextResponse.json(
       { error: "Failed to create room" },

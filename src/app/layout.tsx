@@ -1,24 +1,13 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
-import { ModeToggle } from "@/components/mode.toggle";
 import { Providers } from "./providers";
 import Navbar from "@/components/Nav";
 import { Toaster } from "@/components/ui/toaster";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-});
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-space-grotesk",
-});
-
 export const metadata: Metadata = {
-  title: "Pairme",
-  description: "A pair Programming video conference app",
+  title: "Pairme — Find your next pairing session",
+  description: "A focused place for developers to pair, ship, and learn together.",
 };
 
 export default function RootLayout({
@@ -27,13 +16,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
-      <body className="bg-neutral-50 text-neutral-600">
+    <html lang="en">
+      <body>
         <Providers>
-          <div className=" Header m-2 ">
-            <Navbar></Navbar>
-            <Toaster></Toaster>
-          </div>
+          <Suspense fallback={<div className="h-16 border-b border-border" />}>
+            <Navbar />
+          </Suspense>
+          <Toaster />
           {children}
         </Providers>
       </body>

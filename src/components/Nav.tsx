@@ -6,14 +6,12 @@ import {
   Menu,
   X,
   Search,
-  ChevronDown,
   Code,
+  CircleUserRound,
   Users,
   Plus,
   LogOut,
 } from "lucide-react";
-import Image from "next/image";
-import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,15 +20,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { ModeToggle } from "@/components/mode.toggle";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export default function Navbar() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { theme } = useTheme();
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
@@ -59,8 +56,13 @@ export default function Navbar() {
     setIsMenuOpen(false);
   };
 
+  const handleSignIn = () => {
+    const provider = process.env.NODE_ENV === "development" ? "dev-guest" : "google";
+    signIn(provider, { callbackUrl: pathname || "/" });
+  };
+
   return (
-    <nav className="bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b border-border/40">
+    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/85 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
@@ -69,12 +71,10 @@ export default function Navbar() {
               className="p-0 hover:bg-transparent group"
               onClick={() => handleNavigation("/")}
             >
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-md flex items-center justify-center relative overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-110 group-hover:rotate-3">
-                <Code className="w-6 h-6 text-primary-foreground relative z-10" />
-                <div className="absolute inset-0 bg-white opacity-20 blur-sm group-hover:opacity-30 group-hover:blur-md transition-all duration-300 ease-in-out"></div>
-                <div className="absolute -inset-full z-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-30 group-hover:animate-[shine_1.5s_ease-in-out]"></div>
+              <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-primary-foreground transition-transform duration-200 group-hover:-rotate-6">
+                <Code className="h-5 w-5" />
               </div>
-              <span className="ml-2 text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary transition-all duration-300 ease-in-out group-hover:bg-gradient-to-br">
+              <span className="ml-2 text-lg font-semibold tracking-tight text-white">
                 PairMe
               </span>
             </Button>
@@ -86,7 +86,7 @@ export default function Navbar() {
                 key={item.name}
                 variant="ghost"
                 onClick={() => handleNavigation(item.href)}
-                className="text-sm flex items-center space-x-1 hover:bg-primary/10 hover:text-primary transition-colors duration-200"
+                className="text-sm text-muted-foreground hover:bg-white/[.05] hover:text-white transition-colors duration-200"
               >
                 {item.icon}
                 <span>{item.name}</span>
@@ -101,32 +101,24 @@ export default function Navbar() {
                 placeholder="Search rooms..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-48 focus:w-64 transition-all duration-300 bg-background border-border focus:border-primary"
+                className="w-48 rounded-full border-border bg-white/[.04] pr-9 text-white transition-all duration-300 placeholder:text-muted-foreground focus:w-64 focus:border-primary"
               />
               <Search
                 size={16}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
               />
             </form>
-            <ModeToggle />
-            {session ? (
+            {status === "loading" ? <div className="h-9 w-20 animate-pulse rounded-full bg-white/[.06]" /> : session ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="flex items-center space-x-2 hover:bg-primary/10 transition-colors duration-200"
+                    className="flex items-center space-x-2 rounded-full hover:bg-white/[.06] transition-colors duration-200"
                   >
-                    <Image
-                      src={session.user?.image || "/placeholder.png"}
-                      alt={session.user?.name || "User"}
-                      width={28}
-                      height={28}
-                      className="rounded-full"
-                    />
+                    <span className="grid h-7 w-7 place-items-center rounded-full bg-primary/15 text-primary"><CircleUserRound className="h-4 w-4" /></span>
                     <span className="text-sm font-medium hidden md:inline">
                       {session.user?.name}
                     </span>
-                    <ChevronDown size={16} className="text-muted-foreground" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
@@ -144,11 +136,11 @@ export default function Navbar() {
               </DropdownMenu>
             ) : (
               <Button
-                onClick={() => signIn("google")}
+                onClick={handleSignIn}
                 size="sm"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200"
+                className="rounded-full bg-primary px-4 text-primary-foreground hover:bg-primary/90 transition-colors duration-200"
               >
-                Sign in
+                {process.env.NODE_ENV === "development" ? "Try as guest" : "Continue with Google"}
               </Button>
             )}
           </div>
@@ -173,7 +165,7 @@ export default function Navbar() {
               <Button
                 key={item.name}
                 variant="ghost"
-                className="w-full justify-start text-sm hover:bg-primary/10 hover:text-primary transition-colors duration-200"
+                className="w-full justify-start text-sm hover:bg-white/[.05] hover:text-white transition-colors duration-200"
                 onClick={() => handleNavigation(item.href)}
               >
                 {item.icon}

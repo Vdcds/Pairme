@@ -10,4 +10,23 @@ export const prisma =
   new PrismaClient({
     log: ["query"],
   });
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma;
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+
+const wait = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+/** Neon may briefly reject the first connection when a compute wakes from idle. */
+export async function withDatabaseRetry<T>(operation: () => Promise<T>): Promise<T> {
+  let lastError: unknown;
+
+  for (const delay of [0, 500, 1_200]) {
+    if (delay) await wait(delay);
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      if ((error as { code?: string }).code !== "P1001") throw error;
+    }
+  }
+
+  throw lastError;
+}

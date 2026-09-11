@@ -1,144 +1,44 @@
-import React from "react";
 import { getRoom, deleteRoom } from "@/lib/data-fecther";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Github, Code } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ArrowUpRight, Code2, Github, ShieldAlert, Tags, Trash2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-const ClientVideoPlayer = dynamic(
-  () =>
-    import("@/components/video-player").then((mod) => mod.ClientVideoPlayer),
-  { ssr: false },
-);
 
-export default async function RoomPage({
-  params,
-}: {
-  params: { roomid: string };
-}) {
-  const roomId = params.roomid;
-  const room = await getRoom(roomId);
+const ClientVideoPlayer = dynamic(() => import("@/components/video-player").then((mod) => mod.ClientVideoPlayer), { ssr: false });
+
+export default async function RoomPage({ params }: { params: { roomid: string } }) {
+  const room = await getRoom(params.roomid);
   const session = await getServerSession(authOptions);
 
-  if (!room) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Card className="w-96 text-center">
-          <CardContent className="pt-6">
-            <p className="text-xl font-semibold">Room not found</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  if (!room) return <div className="grid min-h-[70vh] place-items-center p-6"><Card className="border-border bg-card"><CardContent className="p-8 text-center"><Code2 className="mx-auto h-6 w-6 text-primary" /><p className="mt-3 font-medium text-white">Room not found</p></CardContent></Card></div>;
 
-  if (!session || !session.user.id) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Card className="w-96 text-center">
-          <CardContent className="pt-6">
-            <p className="text-xl font-semibold">
-              You must be signed in to view this room.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  if (!session?.user?.id) return <div className="grid min-h-[70vh] place-items-center p-6"><Card className="max-w-sm border-border bg-card"><CardContent className="p-8 text-center"><ShieldAlert className="mx-auto h-6 w-6 text-primary" /><p className="mt-3 font-medium text-white">Sign in to join this room.</p><p className="mt-2 text-sm text-muted-foreground">Your identity keeps the call and room activity accountable.</p></CardContent></Card></div>;
 
   async function handleDeleteRoom() {
     "use server";
-    try {
-      await deleteRoom(roomId);
-      revalidatePath("/rooms");
-      redirect("/rooms");
-    } catch (error) {
-      console.error("Failed to delete room:", error);
-    }
+    await deleteRoom(params.roomid);
+    revalidatePath("/");
+    redirect("/");
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-8">
-      <div className="w-full grid grid-cols-2 lg:grid-cols-3 gap-8">
-        {/* Video Player Section */}
-        <div className="lg:col-span-3">
-          <Card className=" text-lg text-center border-2 border-black shadow-md shadow-black overflow-hidden">
-            <CardHeader className="bg-gray-800  text-white p-4">
-              <CardTitle className="text-2xl font-bold">{room.name}</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="aspect-w-16 aspect-h-9">
-                <ClientVideoPlayer room={room} />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Room Metadata Section */}
-        <div className="space-y-6">
-          <Card className="bg-white dark:bg-gray-800 shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold">
-                Room Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Language
-                </h3>
-                <Badge variant="secondary" className="mt-1">
-                  <Code className="w-4 h-4 mr-1" />
-                  {room.Language}
-                </Badge>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  GitHub Repo
-                </h3>
-                <a
-                  href={room.GithubRepo}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center text-blue-500 hover:underline mt-1"
-                >
-                  <Github className="w-4 h-4 mr-1" />
-                  {room.GithubRepo}
-                </a>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Description
-                </h3>
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-                  {room.description}
-                </p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Tags
-                </h3>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  <Badge className="bg-background"> {room.Roomtags}</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Delete Room Form */}
-          <form action={handleDeleteRoom}>
-            <button
-              type="submit"
-              className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-            >
-              Delete Room
-            </button>
-          </form>
-        </div>
+    <main className="mx-auto min-h-screen max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div><div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[.18em] text-primary"><span className="h-2 w-2 rounded-full bg-primary" /> Live room</div><h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">{room.name}</h1></div>
+        <Badge variant="secondary" className="bg-white/[.06] px-3 py-1.5 text-muted-foreground">{room.Language}</Badge>
       </div>
-    </div>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-2xl shadow-black/30"><ClientVideoPlayer room={room} /></section>
+        <aside className="space-y-4">
+          <Card className="border-border bg-card/80"><CardContent className="space-y-6 p-5"><div><p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Session brief</p><p className="mt-2 text-sm leading-6 text-white/85">{room.description}</p></div><div><p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Focus areas</p><div className="mt-2 flex flex-wrap gap-2">{room.Roomtags.map((tag) => <Badge key={tag} className="gap-1 bg-primary/10 text-primary hover:bg-primary/15"><Tags className="h-3 w-3" />{tag}</Badge>)}</div></div>{room.GithubRepo && <div><p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Repository</p><a href={room.GithubRepo} target="_blank" rel="noreferrer" className="mt-2 flex items-center gap-2 break-all text-sm text-primary hover:text-white"><Github className="h-4 w-4 shrink-0" /> {room.GithubRepo.replace(/^https?:\/\//, "")} <ArrowUpRight className="h-3.5 w-3.5 shrink-0" /></a></div>}</CardContent></Card>
+          <form action={handleDeleteRoom}><Button type="submit" variant="ghost" className="w-full justify-start text-muted-foreground hover:bg-destructive/10 hover:text-destructive"><Trash2 className="mr-2 h-4 w-4" /> Delete room</Button></form>
+        </aside>
+      </div>
+    </main>
   );
 }

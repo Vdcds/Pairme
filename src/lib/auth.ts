@@ -1,61 +1,70 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { AuthOptions, DefaultSession, getServerSession } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import {
-  GetServerSidePropsContext,
-  NextApiRequest,
-  NextApiResponse,
-} from "next";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      email: string;
-      name: string | null | undefined;
-      image: string | null | undefined;
     } & DefaultSession["user"];
   }
 }
 
-export const authOptions: AuthOptions = {
-  adapter: PrismaAdapter(prisma) as any, // Type assertion to avoid adapter incompatibility
-  session: {
-    strategy: "jwt",
-  },
-  providers: [
+export const isGoogleAuthConfigured = Boolean(
+  process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET,
+);
+
+const providers: AuthOptions["providers"] = [];
+
+if (isGoogleAuthConfigured) {
+  providers.push(
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
-  ],
+  );
+}
+
+// Lets contributors verify protected flows locally without shipping a backdoor.
+if (process.env.NODE_ENV === "development") {
+  providers.push(
+    CredentialsProvider({
+      id: "dev-guest",
+      name: "Development guest",
+      credentials: {},
+      async authorize() {
+        const user = await prisma.user.upsert({
+          where: { email: "guest@pairme.local" },
+          update: {},
+          create: { email: "guest@pairme.local", name: "Pairme Guest" },
+        });
+
+        return { id: user.id, email: user.email, name: user.name, image: user.image };
+      },
+    }),
+  );
+}
+
+export const authOptions: AuthOptions = {
+  adapter: PrismaAdapter(prisma),
+  secret: process.env.NEXTAUTH_SECRET,
+  session: { strategy: "jwt" },
+  providers,
+  pages: { signIn: "/" },
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-      }
+      if (user) token.id = user.id;
       return token;
     },
     async session({ token, session }) {
-      if (token) {
-        session.user = {
-          id: token.id as string,
-          email: token.email!,
-          name: token.name as string | null | undefined,
-          image: token.picture as string | null | undefined,
-        };
-      }
+      if (session.user) session.user.id = token.id as string;
       return session;
     },
   },
 };
 
-export async function getSession(
-  req: GetServerSidePropsContext["req"] | NextApiRequest,
-  res: GetServerSidePropsContext["res"] | NextApiResponse
-) {
-  return await getServerSession(req, res, authOptions);
+export function getSession() {
+  return getServerSession(authOptions);
 }

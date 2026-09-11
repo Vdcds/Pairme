@@ -1,8 +1,8 @@
-import { prisma } from "@/lib/prisma";
+import { prisma, withDatabaseRetry } from "@/lib/prisma";
 import { unstable_noStore } from "next/cache";
 export async function getRooms(searchQuery?: string) {
   unstable_noStore();
-  const rooms = await prisma.room.findMany({
+  const rooms = await withDatabaseRetry(() => prisma.room.findMany({
     where: searchQuery
       ? {
           OR: [
@@ -13,18 +13,18 @@ export async function getRooms(searchQuery?: string) {
           ],
         }
       : undefined,
-  });
+  }));
   return rooms;
 }
 
 export async function getRoom(roomId: string) {
   unstable_noStore();
 
-  const room = await prisma.room.findFirst({
+  const room = await withDatabaseRetry(() => prisma.room.findFirst({
     where: {
       id: roomId, // This is the correct syntax to query by `id`
     },
-  });
+  }));
 
   return room;
 }

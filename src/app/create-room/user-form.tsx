@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
   Form,
@@ -119,7 +119,7 @@ export default function CreateZenRealmForm() {
 
   const onSubmit = async (values: FormValues) => {
     if (!session?.user) {
-      setError("Authenticate to manifest your realm.");
+      setError("Sign in before creating a room.");
       return;
     }
 
@@ -132,31 +132,34 @@ export default function CreateZenRealmForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           roomData: values,
-          user: session.user,
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to create room");
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.error || "Failed to create room");
+      }
 
       const newRoom = await response.json();
-      console.log("Realm manifested:", newRoom);
+      console.log("Room created:", newRoom);
       router.push("/");
     } catch (error) {
       console.error("Error:", error);
-      setError("The universe hiccupped. Try again.");
+      setError(error instanceof Error ? error.message : "We couldn’t create the room. Try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4 sm:p-6 md:p-8 flex flex-col items-center justify-center">
-      <Card className="w-full max-w-3xl shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-3xl font-light text-center">
-            Craft Your Zen Coding Realm
+    <div className="min-h-screen px-4 py-12 sm:px-6 md:py-16">
+      <Card className="mx-auto w-full max-w-3xl border-border bg-card/85 shadow-2xl shadow-black/30">
+        <CardHeader className="border-b border-border pb-6">
+          <p className="text-xs font-semibold uppercase tracking-[.2em] text-primary">Start a session</p>
+          <CardTitle className="mt-2 text-3xl font-semibold tracking-tight text-white">
+            Set up a room people want to join.
           </CardTitle>
-          <CardDescription className="text-center italic">
+          <CardDescription className="mt-2 text-base">
             {currentQuote}
           </CardDescription>
         </CardHeader>
@@ -170,7 +173,7 @@ export default function CreateZenRealmForm() {
                   <FormItem>
                     <FormLabel>Realm Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Tranquil Terminal" {...field} />
+                      <Input className="bg-white/[.03]" placeholder="Debug the checkout flow" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -183,7 +186,7 @@ export default function CreateZenRealmForm() {
                   name="language"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Code Dialect</FormLabel>
+                      <FormLabel>Language</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -211,7 +214,7 @@ export default function CreateZenRealmForm() {
                   name="zenLevel"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Zen Mastery</FormLabel>
+                      <FormLabel>Experience level</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -240,7 +243,7 @@ export default function CreateZenRealmForm() {
                 name="githubRepo"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>GitHub Sanctuary (Optional)</FormLabel>
+                  <FormLabel>GitHub repository (optional)</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input
@@ -260,7 +263,7 @@ export default function CreateZenRealmForm() {
                 name="roomTags"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Realm Tags</FormLabel>
+                  <FormLabel>What do you need help with?</FormLabel>
                     <FormControl>
                       <div className="flex flex-wrap gap-2">
                         {tags.map((tag) => (
@@ -293,10 +296,10 @@ export default function CreateZenRealmForm() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Realm Essence</FormLabel>
+                  <FormLabel>Brief</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="In the stillness of code, creativity blooms..."
+                        placeholder="What are you trying to solve? Add enough context for the right person to join."
                         {...field}
                         className="h-24 resize-none"
                       />
@@ -309,25 +312,25 @@ export default function CreateZenRealmForm() {
           </Form>
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
-          <Button
+          {status !== "authenticated" ? <Button type="button" onClick={() => signIn(process.env.NODE_ENV === "development" ? "dev-guest" : "google")} className="w-full gap-2"><Code2 className="h-4 w-4" /> Sign in to create a room</Button> : <Button
             type="submit"
-            disabled={isLoading || status !== "authenticated"}
+            disabled={isLoading}
             className="w-full"
             onClick={form.handleSubmit(onSubmit)}
           >
             {isLoading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Manifesting...
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating room...
               </>
             ) : (
               <>
-                <Zap className="mr-2 h-4 w-4" /> Create Zen Realm
+                <Zap className="mr-2 h-4 w-4" /> Create room
               </>
             )}
-          </Button>
+          </Button>}
           {error && <p className="text-destructive text-center">{error}</p>}
           <p className="text-center text-muted-foreground text-sm">
-            Code with intention, debug with patience.
+            Your room is visible to people searching for a good pairing session.
           </p>
         </CardFooter>
       </Card>
