@@ -4,246 +4,224 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 199 89% 48%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 301 87% 61%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 199 89% 48%;
-    --radius: 0.5rem;
-  }
-
+  :root,
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --background: 249 22% 12%;
+    --foreground: 245 50% 91%;
+    --card: 247 23% 15%;
+    --card-foreground: 245 50% 91%;
+    --popover: 248 25% 18%;
+    --popover-foreground: 245 50% 91%;
+    --primary: 343 74% 68%;
+    --primary-foreground: 249 22% 12%;
+    --secondary: 248 25% 18%;
+    --secondary-foreground: 245 50% 91%;
+    --muted: 248 21% 19%;
+    --muted-foreground: 248 15% 61%;
+    --accent: 267 57% 78%;
+    --accent-foreground: 249 22% 12%;
+    --destructive: 2 55% 65%;
+    --destructive-foreground: 249 22% 12%;
+    --border: 249 15% 28%;
+    --input: 249 15% 28%;
+    --ring: 343 74% 68%;
+    --radius: 1rem;
+    --rp-base: #191724;
+    --rp-surface: #1f1d2e;
+    --rp-overlay: #26233a;
+    --rp-muted: #6e6a86;
+    --rp-subtle: #908caa;
+    --rp-text: #e0def4;
+    --rp-love: #eb6f92;
+    --rp-gold: #f6c177;
+    --rp-rose: #ebbcba;
+    --rp-pine: #31748f;
+    --rp-foam: #9ccfd8;
+    --rp-iris: #c4a7e7;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
+    box-sizing: border-box;
   }
+
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+  }
+
+  html,
+  body {
+    min-height: 100%;
+    width: 100%;
+  }
+
   body {
     @apply bg-background text-foreground;
+    margin: 0;
+    font-family: Wotfard, "SF Pro Display", "SF Pro Text", ui-sans-serif,
+      system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-image:
+      radial-gradient(circle at 12% -8%, rgb(235 111 146 / 0.1), transparent 30rem),
+      radial-gradient(circle at 92% 3%, rgb(196 167 231 / 0.09), transparent 34rem),
+      linear-gradient(rgb(255 255 255 / 0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.018) 1px, transparent 1px);
+    background-size: auto, auto, 42px 42px, 42px 42px;
+    background-attachment: fixed;
   }
-}
-/* Simple CSS Reset */
-*,
-*::before,
-*::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
-html,
-body {
-  height: 100%;
-  width: 100%;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  button { cursor: pointer; }
+  img, picture, video, canvas, svg { display: block; max-width: 100%; }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: rgb(235 111 146 / 0.32); color: var(--rp-text); }
 }
 
-img,
-picture,
-video,
-canvas,
-svg {
-  display: block;
-  max-width: 100%;
+@layer components {
+  .premium-panel {
+    background:
+      linear-gradient(180deg, rgb(255 255 255 / 0.035), transparent 36%),
+      rgb(31 29 46 / 0.88);
+    border: 1px solid rgb(64 61 82 / 0.78);
+    box-shadow: 0 24px 70px rgb(10 8 18 / 0.32);
+    backdrop-filter: blur(24px);
+  }
+
+  .premium-keyline { box-shadow: inset 0 1px rgb(255 255 255 / 0.045); }
+  .rose-gradient { background: linear-gradient(105deg, var(--rp-love), var(--rp-iris)); }
 }
 
-input,
-button,
-textarea,
-select {
-  font: inherit;
-  color: inherit;
-  background: none;
-  border: none;
-  outline: none;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-ul[role="list"],
-ol[role="list"] {
-  list-style: none;
-}
-
-button {
-  cursor: pointer;
-}
-
-table {
-  border-collapse: collapse;
-  border-spacing: 0;
-}
-
-/* Hide scrollbar for Chrome, Safari and Opera */
-body::-webkit-scrollbar {
-  display: none;
-}
-
-/* Pairme's product theme intentionally uses Wotfard when the licensed webfont is
-   present, with a resilient system-font fallback for local development. */
-:root {
-  --background: 240 10% 4%;
-  --foreground: 210 40% 98%;
-  --card: 240 8% 7%;
-  --card-foreground: 210 40% 98%;
-  --popover: 240 8% 9%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 157 72% 45%;
-  --primary-foreground: 155 60% 8%;
-  --secondary: 240 5% 15%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 240 5% 13%;
-  --muted-foreground: 240 5% 65%;
-  --accent: 157 40% 14%;
-  --accent-foreground: 157 72% 72%;
-  --border: 240 5% 18%;
-  --input: 240 5% 18%;
-  --ring: 157 72% 45%;
-  --radius: 0.75rem;
-}
-
-html { color-scheme: dark; }
-body {
-  font-family: Wotfard, ui-sans-serif, system-ui, sans-serif;
-  background-image: radial-gradient(circle at 10% -10%, hsl(157 72% 45% / .13), transparent 24rem), radial-gradient(circle at 90% 10%, hsl(216 90% 58% / .1), transparent 28rem);
-}
-::selection { background: hsl(157 72% 45% / .35); }
-
-/* ─────────────────────────────────────────────────────────────
-   PairMe Video
-   ───────────────────────────────────────────────────────────── */
-
+/* Pairme Video ------------------------------------------------------------ */
 .pairme-call.str-video {
-  --str-video__primary-color: #8b5cf6;
-  --str-video__secondary-color: #a78bfa;
-
-  --str-video__text-color1: #ffffff;
-  --str-video__text-color2: #b4b4c5;
-
-  --str-video__background-color0: #07070a;
-  --str-video__background-color1: #0d0d12;
-  --str-video__background-color2: #14141b;
-  --str-video__background-color3: #1c1c26;
-  --str-video__background-color4: #272733;
-
+  --str-video__primary-color: #eb6f92;
+  --str-video__secondary-color: #c4a7e7;
+  --str-video__text-color1: #e0def4;
+  --str-video__text-color2: #908caa;
+  --str-video__background-color0: #191724;
+  --str-video__background-color1: #1f1d2e;
+  --str-video__background-color2: #26233a;
+  --str-video__background-color3: #2f2b46;
+  --str-video__background-color4: #403d52;
   --str-video__border-radius-circle: 999px;
   --str-video__border-radius-xs: 10px;
   --str-video__border-radius-sm: 14px;
   --str-video__border-radius-md: 18px;
   --str-video__border-radius-lg: 24px;
-
   width: 100%;
-  height: 100%;
+  min-height: 100%;
+  color: var(--rp-text);
+  background: var(--rp-base);
+}
+
+.pairme-call .str-video__speaker-layout,
+.pairme-call .str-video__speaker-layout__wrapper,
+.pairme-call .str-video__speaker-layout__spotlight {
+  min-height: 0;
   background: transparent;
 }
 
-/*
- * Participant tiles
- */
 .pairme-call .str-video__participant-view {
   overflow: hidden;
-  border-radius: 22px;
-  background: #111118;
-  border: 1px solid rgb(255 255 255 / 0.07);
-  box-shadow:
-    0 20px 50px rgb(0 0 0 / 0.32),
-    inset 0 1px rgb(255 255 255 / 0.04);
+  border: 1px solid rgb(64 61 82 / 0.85);
+  border-radius: 20px;
+  background: var(--rp-surface);
+  box-shadow: 0 18px 48px rgb(10 8 18 / 0.3), inset 0 1px rgb(255 255 255 / 0.045);
 }
 
-/*
- * Call controls
- */
-.pairme-call .str-video__call-controls {
-  gap: 0.65rem;
+.pairme-call .str-video__participant-view--speaking {
+  border-color: rgb(156 207 216 / 0.78);
+  box-shadow: 0 0 0 2px rgb(156 207 216 / 0.16), 0 18px 48px rgb(10 8 18 / 0.3);
+}
+
+.pairme-call .str-video__participant-details {
+  border: 1px solid rgb(224 222 244 / 0.08);
+  border-radius: 999px;
+  background: rgb(25 23 36 / 0.74);
+  color: var(--rp-text);
+  backdrop-filter: blur(14px);
+}
+
+.pairme-call .str-video__reaction { right: 1rem; top: 1rem; z-index: 8; }
+.pairme-call .str-video__reaction__emoji {
+  font-size: clamp(2.5rem, 4vw, 4rem);
+  filter: drop-shadow(0 10px 18px rgb(10 8 18 / 0.38));
+  animation: pairme-reaction-pop 460ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pairme-call .str-video__video-preview-container {
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+  overflow: hidden;
+  border-radius: 22px;
+  background: radial-gradient(circle at 50% 20%, rgb(196 167 231 / 0.12), transparent 45%), var(--rp-overlay);
+}
+
+.pairme-call .str-video__video-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
 }
 
 .pairme-call .str-video__call-controls__button {
-  width: 46px;
-  height: 46px;
-
-  border: 1px solid rgb(255 255 255 / 0.08);
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgb(64 61 82 / 0.9);
   border-radius: 14px;
-
-  background: rgb(255 255 255 / 0.07);
-  backdrop-filter: blur(16px);
-
-  transition:
-    transform 150ms ease,
-    background-color 150ms ease,
-    border-color 150ms ease;
+  background: rgb(38 35 58 / 0.9);
+  color: var(--rp-text);
+  transition: transform 150ms ease, border-color 150ms ease, background 150ms ease;
 }
 
 .pairme-call .str-video__call-controls__button:hover {
-  transform: translateY(-2px);
-  border-color: rgb(255 255 255 / 0.14);
-  background: rgb(255 255 255 / 0.12);
+  transform: translateY(-1px);
+  border-color: rgb(196 167 231 / 0.55);
+  background: #302c48;
 }
 
-/*
- * Participant names / menus
- */
-.pairme-call .str-video__participant-details {
-  border-radius: 999px;
-  background: rgb(0 0 0 / 0.5);
-  backdrop-filter: blur(10px);
+.pairme-call .str-video__call-controls__button--variant-active,
+.pairme-call .str-video__call-controls__button--enabled {
+  border-color: rgb(156 207 216 / 0.48);
+  background: rgb(49 116 143 / 0.3);
 }
 
-/*
- * Menus / popovers
- */
-.pairme-call .str-video__generic-menu {
-  border: 1px solid rgb(255 255 255 / 0.08);
-  border-radius: 18px;
-
-  background: rgb(16 16 22 / 0.94);
-
-  box-shadow: 0 20px 60px rgb(0 0 0 / 0.45);
-
+.pairme-call .str-video__generic-menu,
+.pairme-call .str-video__device-settings,
+.pairme-call .str-video__reactions-menu {
+  border: 1px solid rgb(64 61 82 / 0.9);
+  border-radius: 16px;
+  background: rgb(38 35 58 / 0.97);
+  box-shadow: 0 22px 54px rgb(10 8 18 / 0.48);
   backdrop-filter: blur(24px);
+}
+
+.pairme-call .str-video__device-settings__option:hover,
+.pairme-call .str-video__device-settings__option--active,
+.pairme-call .str-video__device-settings__option--selected {
+  background: rgb(196 167 231 / 0.12);
+}
+
+@keyframes pairme-reaction-pop {
+  0% { opacity: 0; transform: translateY(18px) scale(0.55) rotate(-8deg); }
+  62% { opacity: 1; transform: translateY(-4px) scale(1.12) rotate(3deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

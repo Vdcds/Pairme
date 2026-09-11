@@ -23,16 +23,20 @@ export async function POST(request: NextRequest) {
     const { roomData } = await request.json();
     const data = roomSchema.parse(roomData);
 
-    const newRoom = await prisma.room.create({
-      data: {
-        name: data.name,
-        Language: data.language,
-        GithubRepo: data.githubRepo,
-        description: data.description,
-        Roomtags: data.roomTags,
-        ZenLevel: data.zenLevel,
-        user: { connect: { id: session.user.id } },
-      },
+    const newRoom = await prisma.$transaction(async (tx) => {
+      const room = await tx.room.create({
+        data: {
+          name: data.name,
+          Language: data.language,
+          GithubRepo: data.githubRepo,
+          description: data.description,
+          Roomtags: data.roomTags,
+          ZenLevel: data.zenLevel,
+          user: { connect: { id: session.user.id } },
+        },
+      });
+      await tx.roomParticipant.create({ data: { roomId: room.id, userId: session.user.id, role: "OWNER" } });
+      return room;
     });
 
     console.log("Room created successfully:", newRoom);

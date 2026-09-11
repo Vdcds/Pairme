@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { StreamClient } from "@stream-io/node-sdk";
+import { z } from "zod";
 import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+const tokenSchema = z.object({ roomId: z.string().cuid() });
+
+export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
   const user = session?.user;
 
@@ -15,6 +19,18 @@ export async function GET() {
       { status: 401 },
     );
   }
+
+  const tokenRequest = tokenSchema.safeParse({ roomId: new URL(request.url).searchParams.get("roomId") });
+  if (!tokenRequest.success) return NextResponse.json({ error: "A valid room is required." }, { status: 400 });
+
+  const hasAccess = await prisma.room.findFirst({
+    where: {
+      id: tokenRequest.data.roomId,
+      OR: [{ userId: user.id }, { participants: { some: { userId: user.id } } }],
+    },
+    select: { id: true },
+  });
+  if (!hasAccess) return NextResponse.json({ error: "You need an accepted request to enter this room." }, { status: 403 });
 
   const apiKey = process.env.NEXT_PUBLIC_GET_STREAM_API_KEY;
   const apiSecret = process.env.GET_STREAM_SECRET_KEY;

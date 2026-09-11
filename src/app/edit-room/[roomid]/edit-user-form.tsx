@@ -52,7 +52,7 @@ export default function EditRoomForm({ room }: { room: Room }) {
           : [],
       };
 
-      await editRoomAction(params.roomId as string, updatedValues);
+      await editRoomAction(params.roomid as string, updatedValues);
       toast({
         title: "Room Updated",
         description: "Your room was successfully updated",
@@ -68,7 +68,7 @@ export default function EditRoomForm({ room }: { room: Room }) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="name"
@@ -76,7 +76,7 @@ export default function EditRoomForm({ room }: { room: Room }) {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Dev Finder Is Awesome" />
+                <Input {...field} className="h-11 rounded-xl border-border bg-background/35" placeholder="Debug the checkout flow" />
               </FormControl>
               <FormDescription>This is your public room name.</FormDescription>
               <FormMessage />
@@ -93,7 +93,8 @@ export default function EditRoomForm({ room }: { room: Room }) {
               <FormControl>
                 <Input
                   {...field}
-                  placeholder="I'm working on a side project, come join me"
+                  className="h-11 rounded-xl border-border bg-background/35"
+                  placeholder="What are you trying to solve?"
                 />
               </FormControl>
               <FormDescription>
@@ -113,7 +114,8 @@ export default function EditRoomForm({ room }: { room: Room }) {
               <FormControl>
                 <Input
                   {...field}
-                  placeholder="https://github.com/webdevcody/dev-finder"
+                  className="h-11 rounded-xl border-border bg-background/35"
+                  placeholder="https://github.com/username/repo"
                 />
               </FormControl>
               <FormDescription>
@@ -131,7 +133,7 @@ export default function EditRoomForm({ room }: { room: Room }) {
             <FormItem>
               <FormLabel>Tags</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="typescript, nextjs, tailwind" />
+                <Input {...field} className="h-11 rounded-xl border-border bg-background/35" placeholder="typescript, nextjs, tailwind" />
               </FormControl>
               <FormDescription>
                 List your programming languages, frameworks, libraries so people
@@ -149,7 +151,7 @@ export default function EditRoomForm({ room }: { room: Room }) {
             <FormItem>
               <FormLabel>Language</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="TypeScript/Javascript" />
+                <Input {...field} className="h-11 rounded-xl border-border bg-background/35" placeholder="TypeScript" />
               </FormControl>
               <FormDescription>
                 Specify the main language for your project.
@@ -166,7 +168,7 @@ export default function EditRoomForm({ room }: { room: Room }) {
             <FormItem>
               <FormLabel>Zen Level</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Master" />
+                <Input {...field} className="h-11 rounded-xl border-border bg-background/35" placeholder="Adept" />
               </FormControl>
               <FormDescription>
                 Indicate the zen level of the room.
@@ -176,7 +178,7 @@ export default function EditRoomForm({ room }: { room: Room }) {
           )}
         />
 
-        <Button type="submit">Submit</Button>
+        <Button type="submit" className="rose-gradient h-11 w-full rounded-xl border-0 font-semibold text-primary-foreground">Save room</Button>
       </form>
     </Form>
   );

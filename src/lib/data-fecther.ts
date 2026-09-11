@@ -1,4 +1,5 @@
 import { prisma, withDatabaseRetry } from "@/lib/prisma";
+import { getSession } from "@/lib/auth";
 import { unstable_noStore } from "next/cache";
 export async function getRooms(searchQuery?: string) {
   unstable_noStore();
@@ -20,9 +21,15 @@ export async function getRooms(searchQuery?: string) {
 export async function getRoom(roomId: string) {
   unstable_noStore();
 
-  const room = await withDatabaseRetry(() => prisma.room.findFirst({
-    where: {
-      id: roomId, // This is the correct syntax to query by `id`
+  const room = await withDatabaseRetry(() => prisma.room.findUnique({
+    where: { id: roomId },
+    include: {
+      participants: { select: { userId: true, role: true } },
+      joinRequests: {
+        where: { status: "PENDING" },
+        include: { user: { select: { name: true, email: true, image: true } } },
+        orderBy: { createdAt: "asc" },
+      },
     },
   }));
 
@@ -32,15 +39,16 @@ export async function deleteRoom(roomId: string) {
   unstable_noStore();
 
   try {
-    // Delete the room from the database
+    const session = await getSession();
+    if (!session?.user?.id) throw new Error("Sign in to delete a room.");
+    const room = await prisma.room.findUnique({ where: { id: roomId }, select: { userId: true } });
+    if (!room || room.userId !== session.user.id) throw new Error("Only the room owner can delete this room.");
+
     const deletedRoom = await prisma.room.delete({
       where: {
         id: roomId,
       },
     });
-
-    // You might want to perform additional cleanup here,
-    // such as deleting associated records in other tables
 
     return deletedRoom;
   } catch (error) {

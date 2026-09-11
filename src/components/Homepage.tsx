@@ -1,14 +1,29 @@
 import { Room } from "@prisma/client";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
-import { ArrowUpRight, Code2, Edit3, Radio, Terminal, Trash2, Users } from "lucide-react";
+import {
+  ArrowUpRight,
+  Braces,
+  Code2,
+  Edit3,
+  Radio,
+  ShieldCheck,
+  Sparkles,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { getRooms, deleteRoom } from "@/lib/data-fecther";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 const languageMarks: Record<string, string> = {
-  JavaScript: "JS", TypeScript: "TS", Python: "PY", Java: "JV", Go: "GO", Rust: "RS",
+  JavaScript: "JS",
+  TypeScript: "TS",
+  Python: "PY",
+  Java: "JV",
+  Go: "GO",
+  Rust: "RS",
 };
 
 export default async function Home({ searchParams }: { searchParams: { search?: string } }) {
@@ -21,66 +36,96 @@ export default async function Home({ searchParams }: { searchParams: { search?: 
   }
 
   return (
-    <main className="min-h-screen">
-      <section className="mx-auto max-w-7xl px-5 pb-10 pt-14 sm:px-8 sm:pt-20">
-        <div className="grid gap-10 lg:grid-cols-[1.25fr_.75fr] lg:items-end">
+    <main className="min-h-screen overflow-hidden">
+      <section data-ui="hero" className="relative mx-auto max-w-7xl px-5 pb-14 pt-16 sm:px-8 sm:pb-20 sm:pt-24">
+        <div className="pointer-events-none absolute left-[-14rem] top-[-16rem] h-[34rem] w-[34rem] rounded-full bg-primary/10 blur-[120px]" />
+        <div className="relative grid gap-12 lg:grid-cols-[1.12fr_.88fr] lg:items-center">
           <div>
-            <div className="mb-6 flex items-center gap-2 text-xs font-semibold uppercase tracking-[.22em] text-primary">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-primary" /> Live collaboration, without the noise
+            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/[0.08] px-3 py-1.5 text-xs font-semibold text-[#ebbcba]">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
+              Developers available to pair now
             </div>
-            <h1 className="max-w-3xl text-5xl font-semibold leading-[.98] tracking-[-.055em] text-white sm:text-7xl">
-              Find the right person.<br /><span className="text-primary">Ship the next thing.</span>
+            <h1 className="max-w-4xl text-5xl font-semibold leading-[0.98] tracking-[-0.055em] text-foreground sm:text-7xl">
+              Find your next
+              <span className="block text-primary">pairing session.</span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-muted-foreground">
-              Pairme is a focused room directory for developers who want to solve, review, and build together in real time.
+            <p className="mt-7 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+              Bring the problem. Pair with a developer who understands the stack. Leave with working code and a clearer path forward.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild size="lg" className="gap-2 rounded-full px-6 font-semibold">
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Button asChild size="lg" className="rose-gradient h-12 gap-2 rounded-2xl border-0 px-6 font-semibold text-primary-foreground shadow-[0_14px_34px_rgba(235,111,146,.18)] hover:opacity-95">
                 <Link href="/create-room">Start a room <ArrowUpRight className="h-4 w-4" /></Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-full border-border bg-white/[.03] px-6 text-white hover:bg-white/[.08] hover:text-white">
-                <a href="#rooms">Browse active rooms</a>
+              <Button asChild size="lg" variant="outline" className="h-12 rounded-2xl border-border bg-card/55 px-6 text-foreground hover:border-accent/40 hover:bg-secondary hover:text-foreground">
+                <a href="#rooms">Browse open rooms</a>
               </Button>
             </div>
           </div>
-          <Card className="overflow-hidden border-border bg-card/80 shadow-2xl shadow-black/30 backdrop-blur">
-            <CardContent className="p-0">
-              <div className="flex items-center justify-between border-b border-border px-5 py-4">
-                <div className="flex items-center gap-2 text-sm font-medium"><Radio className="h-4 w-4 text-primary" /> How Pairme works</div>
-                <span className="rounded-full bg-primary/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">Fast lane</span>
+
+          <div className="relative">
+            <div className="premium-panel premium-keyline overflow-hidden rounded-[28px]">
+              <div className="flex items-center justify-between border-b border-border/80 px-5 py-4">
+                <div className="flex items-center gap-2 text-sm font-semibold"><Radio className="h-4 w-4 text-[#9ccfd8]" /> The pairing loop</div>
+                <span className="rounded-full border border-[#9ccfd8]/20 bg-[#31748f]/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#9ccfd8]">Live</span>
               </div>
-              <div className="grid grid-cols-3 divide-x divide-border">
-                {[{ icon: Terminal, label: "Create", detail: "Set the brief" }, { icon: Users, label: "Match", detail: "Find your pair" }, { icon: Code2, label: "Build", detail: "Meet & ship" }].map(({ icon: Icon, label, detail }, index) => (
-                  <div className="p-5" key={label}><span className="text-xs text-muted-foreground">0{index + 1}</span><Icon className="my-5 h-5 w-5 text-primary" /><p className="font-medium text-white">{label}</p><p className="mt-1 text-xs text-muted-foreground">{detail}</p></div>
+              <div className="space-y-2.5 p-4">
+                {[
+                  { icon: Braces, step: "01", label: "Frame the problem", detail: "Share the stack, repo, and the blocker." },
+                  { icon: Users, step: "02", label: "Choose the right pair", detail: "Accept a focused request from another developer." },
+                  { icon: Sparkles, step: "03", label: "Solve it live", detail: "Open the room, share the screen, and ship." },
+                ].map(({ icon: Icon, step, label, detail }) => (
+                  <div key={step} className="group flex gap-4 rounded-2xl border border-border/70 bg-background/35 p-4 transition hover:border-accent/35 hover:bg-secondary/60">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-border bg-secondary text-accent"><Icon className="h-4 w-4" /></div>
+                    <div className="min-w-0 flex-1"><div className="flex items-center gap-2"><span className="text-[10px] font-bold tracking-wider text-primary">{step}</span><p className="text-sm font-semibold text-foreground">{label}</p></div><p className="mt-1 text-xs leading-5 text-muted-foreground">{detail}</p></div>
+                  </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+              <div className="flex items-center gap-2 border-t border-border/80 px-5 py-4 text-xs text-muted-foreground"><ShieldCheck className="h-4 w-4 text-[#9ccfd8]" /> Calls open only after a pairing request is accepted.</div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section id="rooms" className="border-y border-border bg-black/20">
-        <div className="mx-auto max-w-7xl px-5 py-9 sm:px-8">
-          <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
-            <div><p className="text-sm font-medium text-primary">ROOM DIRECTORY</p><h2 className="mt-1 text-2xl font-semibold tracking-tight text-white">Ready when you are.</h2></div>
-            <p className="text-sm text-muted-foreground">{rooms.length} {rooms.length === 1 ? "room" : "rooms"} {searchParams.search ? `matching “${searchParams.search}”` : "available"}</p>
+      <section id="rooms" className="border-y border-border/80 bg-[#171520]/65">
+        <div className="mx-auto max-w-7xl px-5 py-11 sm:px-8 sm:py-14">
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#ebbcba]">Room directory</p>
+              <h2 className="mt-2 text-3xl font-semibold tracking-[-0.035em] text-foreground">A good session starts with context.</h2>
+            </div>
+            <p className="rounded-full border border-border bg-card/70 px-3 py-1.5 text-xs text-muted-foreground">
+              {rooms.length} {rooms.length === 1 ? "room" : "rooms"} {searchParams.search ? `matching “${searchParams.search}”` : "open now"}
+            </p>
           </div>
-          {rooms.length ? <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {rooms.map((room: Room) => (
-              <Card key={room.id} className="group flex min-h-[255px] flex-col border-border bg-card transition hover:-translate-y-1 hover:border-primary/60 hover:bg-[#17171d]">
-                <CardHeader className="pb-3">
-                  <div className="mb-5 flex items-center justify-between"><span className="grid h-10 w-10 place-items-center rounded-lg bg-primary/15 text-xs font-bold text-primary">{languageMarks[room.Language] ?? "</>"}</span><Badge variant="secondary" className="bg-white/[.06] text-muted-foreground">{room.Language}</Badge></div>
-                  <CardTitle className="line-clamp-1 text-xl text-white">{room.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="flex-1 pb-4"><p className="line-clamp-3 text-sm leading-6 text-muted-foreground">{room.description || "A working session looking for a second set of eyes."}</p><p className="mt-4 line-clamp-1 text-xs font-medium text-primary/90">#{room.Roomtags}</p></CardContent>
-                <CardFooter className="gap-2 border-t border-border pt-4">
-                  <Button asChild className="flex-1 gap-2 bg-white text-black hover:bg-primary"><Link href={`/rooms/${room.id}`}>Join session <ArrowUpRight className="h-4 w-4" /></Link></Button>
-                  <Button asChild size="icon" variant="outline" className="border-border bg-transparent text-muted-foreground hover:text-white"><Link href={`/edit-room/${room.id}`} aria-label={`Edit ${room.name}`}><Edit3 className="h-4 w-4" /></Link></Button>
-                  <form action={handleDeleteRoom.bind(null, room.id)}><Button type="submit" size="icon" variant="ghost" className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive" aria-label={`Delete ${room.name}`}><Trash2 className="h-4 w-4" /></Button></form>
-                </CardFooter>
-              </Card>
-            ))}
-          </div> : <Card className="border-dashed border-border bg-card/60"><CardContent className="py-16 text-center"><Code2 className="mx-auto h-7 w-7 text-primary" /><h3 className="mt-4 font-medium text-white">No rooms found</h3><p className="mt-2 text-sm text-muted-foreground">Be the person who starts the next useful session.</p><Button asChild variant="link" className="mt-3 text-primary"><Link href="/create-room">Create a room</Link></Button></CardContent></Card>}
+
+          {rooms.length ? (
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {rooms.map((room: Room) => (
+                <Card data-ui="room-card" key={room.id} className="group premium-keyline flex min-h-[280px] flex-col overflow-hidden border-border/80 bg-card/85 shadow-[0_18px_46px_rgba(10,8,18,.18)] transition duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_24px_58px_rgba(10,8,18,.3)]">
+                  <CardHeader className="pb-3">
+                    <div className="mb-5 flex items-center justify-between">
+                      <span className="grid h-11 w-11 place-items-center rounded-2xl border border-primary/20 bg-primary/10 text-xs font-bold text-primary">{languageMarks[room.Language] ?? "</>"}</span>
+                      <Badge variant="secondary" className="rounded-full border border-border bg-secondary px-2.5 py-1 text-muted-foreground">{room.Language}</Badge>
+                    </div>
+                    <CardTitle className="line-clamp-2 text-xl leading-7 tracking-[-0.02em] text-foreground">{room.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex-1 pb-5">
+                    <p className="line-clamp-3 text-sm leading-6 text-muted-foreground">{room.description || "A working session looking for a second set of eyes."}</p>
+                    <div className="mt-5 flex flex-wrap gap-1.5">{room.Roomtags.slice(0, 3).map((tag) => <span key={tag} className="rounded-full border border-[#c4a7e7]/15 bg-[#c4a7e7]/[0.07] px-2.5 py-1 text-[11px] font-medium text-[#c4a7e7]">{tag}</span>)}</div>
+                  </CardContent>
+                  <CardFooter className="gap-2 border-t border-border/70 bg-background/20 pt-4">
+                    <Button asChild className="flex-1 gap-2 rounded-xl bg-foreground font-semibold text-background hover:bg-primary hover:text-primary-foreground"><Link href={`/rooms/${room.id}`}>View room <ArrowUpRight className="h-4 w-4" /></Link></Button>
+                    <Button asChild size="icon" variant="outline" className="rounded-xl border-border bg-transparent text-muted-foreground hover:bg-secondary hover:text-foreground"><Link href={`/edit-room/${room.id}`} aria-label={`Edit ${room.name}`}><Edit3 className="h-4 w-4" /></Link></Button>
+                    <form action={handleDeleteRoom.bind(null, room.id)}><Button type="submit" size="icon" variant="ghost" className="rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive" aria-label={`Delete ${room.name}`}><Trash2 className="h-4 w-4" /></Button></form>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="premium-keyline border-dashed border-border bg-card/65">
+              <CardContent className="py-20 text-center"><div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl border border-primary/20 bg-primary/10"><Code2 className="h-6 w-6 text-primary" /></div><h3 className="mt-5 text-lg font-semibold text-foreground">No rooms found</h3><p className="mt-2 text-sm text-muted-foreground">Start with a clear problem and invite the right person in.</p><Button asChild className="mt-5 rounded-xl"><Link href="/create-room">Create the first room</Link></Button></CardContent>
+            </Card>
+          )}
         </div>
       </section>
     </main>

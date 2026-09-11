@@ -8,15 +8,17 @@ datasource db {
 }
 
 model User {
-  id            String          @id @default(cuid())
-  name          String?
-  email         String          @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  Authenticator Authenticator[]
-  rooms         Room[]
-  sessions      Session[]
+  id               String            @id @default(cuid())
+  name             String?
+  email            String            @unique
+  emailVerified    DateTime?
+  image            String?
+  accounts         Account[]
+  Authenticator    Authenticator[]
+  rooms            Room[]
+  roomMemberships  RoomParticipant[]
+  roomJoinRequests RoomJoinRequest[]
+  sessions         Session[]
 }
 
 model Account {
@@ -48,19 +50,72 @@ model Session {
 }
 
 model Room {
-  id          String   @id @default(cuid())
-  name        String
-  Language    String   @default("TypeScript/Javascript")
-  GithubRepo  String   @default("Arghhhh Its Still Local")
-  userId      String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  Roomtags    String[] @default(["typeScript, javascript"])
-  ZenLevel    String   @default("Master")
-  description String   @default("Embrace the silence of an empty description.")
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String            @id @default(cuid())
+  name            String
+  Language        String            @default("TypeScript/Javascript")
+  GithubRepo      String            @default("Arghhhh Its Still Local")
+  userId          String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  Roomtags        String[]          @default(["typeScript, javascript"])
+  ZenLevel        String            @default("Master")
+  description     String            @default("Embrace the silence of an empty description.")
+  status          RoomStatus        @default(OPEN)
+  maxParticipants Int               @default(2)
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  participants    RoomParticipant[]
+  joinRequests    RoomJoinRequest[]
 
   @@index([userId])
+}
+
+enum RoomStatus {
+  OPEN
+  REQUESTED
+  MATCHED
+  LIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum RoomParticipantRole {
+  OWNER
+  MEMBER
+}
+
+enum RoomJoinRequestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  WITHDRAWN
+}
+
+model RoomParticipant {
+  id       String              @id @default(cuid())
+  roomId   String
+  userId   String
+  role     RoomParticipantRole @default(MEMBER)
+  joinedAt DateTime            @default(now())
+  room     Room                @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user     User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, userId])
+  @@index([userId])
+}
+
+model RoomJoinRequest {
+  id        String                @id @default(cuid())
+  roomId    String
+  userId    String
+  message   String?               @db.VarChar(280)
+  status    RoomJoinRequestStatus @default(PENDING)
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+  room      Room                  @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, userId])
+  @@index([roomId, status])
 }
 
 model Authenticator {

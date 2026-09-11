@@ -152,18 +152,18 @@ export default function CreateZenRealmForm() {
   };
 
   return (
-    <div className="min-h-screen px-4 py-12 sm:px-6 md:py-16">
-      <Card className="mx-auto w-full max-w-3xl border-border bg-card/85 shadow-2xl shadow-black/30">
-        <CardHeader className="border-b border-border pb-6">
-          <p className="text-xs font-semibold uppercase tracking-[.2em] text-primary">Start a session</p>
-          <CardTitle className="mt-2 text-3xl font-semibold tracking-tight text-white">
-            Set up a room people want to join.
+    <div className="mx-auto w-full max-w-4xl">
+      <Card className="premium-panel premium-keyline overflow-hidden rounded-[28px]">
+        <CardHeader className="border-b border-border/80 px-6 pb-6 pt-7 sm:px-8">
+          <p className="text-xs font-semibold uppercase tracking-[.2em] text-primary">Session brief</p>
+          <CardTitle className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-foreground sm:text-3xl">
+            Set the room up for a useful match.
           </CardTitle>
           <CardDescription className="mt-2 text-base">
             {currentQuote}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-6 py-7 sm:px-8">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
@@ -173,7 +173,7 @@ export default function CreateZenRealmForm() {
                   <FormItem>
                     <FormLabel>Realm Name</FormLabel>
                     <FormControl>
-                      <Input className="bg-white/[.03]" placeholder="Debug the checkout flow" {...field} />
+                      <Input className="h-11 rounded-xl border-border bg-background/35" placeholder="Debug the checkout flow" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -192,7 +192,7 @@ export default function CreateZenRealmForm() {
                         defaultValue={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="h-11 rounded-xl border-border bg-background/35">
                             <SelectValue placeholder="Select a language" />
                           </SelectTrigger>
                         </FormControl>
@@ -220,7 +220,7 @@ export default function CreateZenRealmForm() {
                         defaultValue={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="h-11 rounded-xl border-border bg-background/35">
                             <SelectValue placeholder="Select your path" />
                           </SelectTrigger>
                         </FormControl>
@@ -247,6 +247,7 @@ export default function CreateZenRealmForm() {
                     <FormControl>
                       <div className="relative">
                         <Input
+                          className="h-11 rounded-xl border-border bg-background/35 pr-10"
                           placeholder="https://github.com/username/repo"
                           {...field}
                         />
@@ -274,6 +275,7 @@ export default function CreateZenRealmForm() {
                               field.value.includes(tag) ? "default" : "outline"
                             }
                             size="sm"
+                            className={`rounded-full ${field.value.includes(tag) ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background/30 text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
                             onClick={() => {
                               const updatedTags = field.value.includes(tag)
                                 ? field.value.filter((t) => t !== tag)
@@ -301,7 +303,7 @@ export default function CreateZenRealmForm() {
                       <Textarea
                         placeholder="What are you trying to solve? Add enough context for the right person to join."
                         {...field}
-                        className="h-24 resize-none"
+                        className="min-h-32 resize-none rounded-2xl border-border bg-background/35 p-3.5"
                       />
                     </FormControl>
                     <FormMessage />
@@ -311,11 +313,11 @@ export default function CreateZenRealmForm() {
             </form>
           </Form>
         </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
-          {status !== "authenticated" ? <Button type="button" onClick={() => signIn(process.env.NODE_ENV === "development" ? "dev-guest" : "google")} className="w-full gap-2"><Code2 className="h-4 w-4" /> Sign in to create a room</Button> : <Button
+        <CardFooter className="flex flex-col space-y-4 border-t border-border/80 bg-background/20 px-6 py-6 sm:px-8">
+          {status !== "authenticated" ? <Button type="button" onClick={() => signIn(process.env.NODE_ENV === "development" ? "dev-guest" : "google")} className="rose-gradient h-11 w-full gap-2 rounded-xl border-0 font-semibold text-primary-foreground"><Code2 className="h-4 w-4" /> Sign in to create a room</Button> : <Button
             type="submit"
             disabled={isLoading}
-            className="w-full"
+            className="rose-gradient h-11 w-full rounded-xl border-0 font-semibold text-primary-foreground"
             onClick={form.handleSubmit(onSubmit)}
           >
             {isLoading ? (
