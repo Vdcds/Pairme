@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { signIn, useSession } from "next-auth/react";
+import { SignInButton, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import {
   Form,
@@ -98,7 +98,7 @@ const tags = [
 ];
 
 export default function CreateZenRealmForm({ initialProblem }: { initialProblem?: PairingProblem }) {
-  const { data: session, status } = useSession();
+  const { isLoaded, isSignedIn } = useUser();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -121,7 +121,7 @@ export default function CreateZenRealmForm({ initialProblem }: { initialProblem?
   }, []);
 
   const onSubmit = async (values: FormValues) => {
-    if (!session?.user) {
+    if (!isSignedIn) {
       setError("Sign in before creating a room.");
       return;
     }
@@ -338,7 +338,7 @@ export default function CreateZenRealmForm({ initialProblem }: { initialProblem?
           </Form>
         </CardContent>
         <CardFooter className="flex flex-col space-y-4 border-t border-border/80 bg-background/20 px-6 py-6 sm:px-8">
-          {status !== "authenticated" ? <Button type="button" onClick={() => signIn(process.env.NODE_ENV === "development" ? "dev-guest" : "google")} className="rose-gradient h-11 w-full gap-2 rounded-xl border-0 font-semibold text-primary-foreground"><Code2 className="h-4 w-4" /> Sign in to create a room</Button> : <Button
+          {!isLoaded ? <Button type="button" disabled className="h-11 w-full rounded-xl"><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading account…</Button> : !isSignedIn ? <SignInButton mode="modal"><Button type="button" className="rose-gradient h-11 w-full gap-2 rounded-xl border-0 font-semibold text-primary-foreground"><Code2 className="h-4 w-4" /> Sign in to create a room</Button></SignInButton> : <Button
             type="submit"
             disabled={isLoading}
             className="rose-gradient h-11 w-full rounded-xl border-0 font-semibold text-primary-foreground"

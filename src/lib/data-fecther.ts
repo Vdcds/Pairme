@@ -1,5 +1,5 @@
 import { prisma, withDatabaseRetry } from "@/lib/prisma";
-import { getSession } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { unstable_noStore } from "next/cache";
 export async function getRooms(searchQuery?: string) {
   unstable_noStore();
@@ -39,10 +39,10 @@ export async function deleteRoom(roomId: string) {
   unstable_noStore();
 
   try {
-    const session = await getSession();
-    if (!session?.user?.id) throw new Error("Sign in to delete a room.");
+    const user = await getCurrentUser();
+    if (!user) throw new Error("Sign in to delete a room.");
     const room = await prisma.room.findUnique({ where: { id: roomId }, select: { userId: true } });
-    if (!room || room.userId !== session.user.id) throw new Error("Only the room owner can delete this room.");
+    if (!room || room.userId !== user.id) throw new Error("Only the room owner can delete this room.");
 
     const deletedRoom = await prisma.room.delete({
       where: {

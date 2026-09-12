@@ -1,13 +1,12 @@
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
+import { getCurrentUser } from "@/lib/auth";
+import { prisma, withDatabaseRetry } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
     // Check if user is authenticated
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
+    const user = await getCurrentUser();
+    if (!user) {
       return NextResponse.json(
         { error: "User not authenticated" },
         { status: 401 }
@@ -28,10 +27,10 @@ export async function POST(req: Request) {
     }
 
     // Find the room by ID
-    const existingRoom = await prisma.room.findUnique({
+    const existingRoom = await withDatabaseRetry(() => prisma.room.findUnique({
       where: { id: roomId },
       include: { user: true },
-    });
+    }));
     console.log("Existing Room:", existingRoom);
 
     if (!existingRoom) {
@@ -39,15 +38,15 @@ export async function POST(req: Request) {
     }
 
     // Verify that the authenticated user is the owner of the room
-    if (existingRoom.user.email !== session.user.email) {
+    if (existingRoom.userId !== user.id) {
       return NextResponse.json({ error: "Permission denied" }, { status: 403 });
     }
 
     // Update the room with the provided data
-    const updatedRoom = await prisma.room.update({
+    const updatedRoom = await withDatabaseRetry(() => prisma.room.update({
       where: { id: roomId },
       data: roomData,
-    });
+    }));
     console.log("Updated Room:", updatedRoom);
 
     return NextResponse.json(updatedRoom);

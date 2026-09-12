@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { prisma, withDatabaseRetry } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
 
 const roomSchema = z.object({
@@ -15,15 +14,15 @@ const roomSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const user = await getCurrentUser();
+    if (!user) {
       return NextResponse.json({ error: "Sign in to create a room." }, { status: 401 });
     }
 
     const { roomData } = await request.json();
     const data = roomSchema.parse(roomData);
 
-    const newRoom = await prisma.$transaction(async (tx) => {
+    const newRoom = await withDatabaseRetry(() => prisma.$transaction(async (tx) => {
       const room = await tx.room.create({
         data: {
           name: data.name,
@@ -32,12 +31,12 @@ export async function POST(request: NextRequest) {
           description: data.description,
           Roomtags: data.roomTags,
           ZenLevel: data.zenLevel,
-          user: { connect: { id: session.user.id } },
+          user: { connect: { id: user.id } },
         },
       });
-      await tx.roomParticipant.create({ data: { roomId: room.id, userId: session.user.id, role: "OWNER" } });
+      await tx.roomParticipant.create({ data: { roomId: room.id, userId: user.id, role: "OWNER" } });
       return room;
-    });
+    }));
 
     console.log("Room created successfully:", newRoom);
     return NextResponse.json(newRoom, { status: 201 });
@@ -54,7 +53,7 @@ export async function POST(request: NextRequest) {
 }
 export async function GET() {
   try {
-    const allRooms = await prisma.room.findMany();
+    const allRooms = await withDatabaseRetry(() => prisma.room.findMany());
     return NextResponse.json({ rooms: allRooms });
   } catch (error) {
     console.error("Error fetching rooms:", error);

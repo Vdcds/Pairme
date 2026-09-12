@@ -1,14 +1,21 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import EditRoomForm from "./edit-user-form";
 
-export default async function EditRoomPage({ params }: { params: { roomid: string } }) {
-  const room = await prisma.room.findUnique({ where: { id: params.roomid } });
+export default async function EditRoomPage({ params }: { params: Promise<{ roomid: string }> }) {
+  const { roomid } = await params;
+  const room = await prisma.room.findUnique({ where: { id: roomid } });
+  const user = await getCurrentUser();
 
   if (!room) {
     return <main className="grid min-h-[70vh] place-items-center p-6"><p className="text-muted-foreground">Room not found.</p></main>;
+  }
+
+  if (!user || room.userId !== user.id) {
+    return <main className="grid min-h-[70vh] place-items-center p-6"><p className="text-muted-foreground">You don’t have permission to edit this room.</p></main>;
   }
 
   return (

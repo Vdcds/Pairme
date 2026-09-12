@@ -4,10 +4,10 @@ Pairme is a developer pairing directory. Developers sign in, create a room with 
 
 ## Stack
 
-- Next.js 14 (App Router), React, TypeScript
-- PostgreSQL + Prisma
-- NextAuth with Google sign-in
-- Stream Video and Chat
+- Next.js 15 (App Router), React, TypeScript
+- Neon PostgreSQL + Prisma
+- Clerk authentication
+- Stream Video
 - Tailwind CSS + shadcn/ui primitives
 
 ## Run locally
@@ -20,9 +20,13 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Create a `.env` file with the database, NextAuth, Google OAuth, and Stream credentials required by the existing integrations. Use `pnpm build` for a production build and `pnpm seed` to seed Prisma data.
+Copy `.env.example` to `.env.local`, then add the Neon database URL, Clerk keys, and Stream credentials. Use `pnpm build` for a production build and `pnpm seed` to seed Prisma data.
 
-For authentication, copy `.env.example` to `.env.local`, set a strong `NEXTAUTH_SECRET`, and create a Google OAuth web client. Add `http://localhost:3000/api/auth/callback/google` as its local redirect URI (and the equivalent production URL before deploying). In development, Pairme offers a clearly marked guest session so the room flow can be tested without Google credentials; that provider is never enabled in production.
+## Deploy to Vercel
+
+Add these environment variables in Vercel for **Production**, **Preview**, and **Development** as appropriate: `DATABASE_URL`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `NEXT_PUBLIC_GET_STREAM_API_KEY`, and `GET_STREAM_SECRET_KEY`. Vercel runs `vercel-build`, which applies the checked-in Prisma migration before building.
+
+In the Clerk dashboard, add your deployed Vercel domain to the allowed origins/redirect URLs. Pairme maps a Clerk identity to the existing database user on the first successful sign-in by email, so existing room ownership and memberships stay intact.
 
 ## Design system
 

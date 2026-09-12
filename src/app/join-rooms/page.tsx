@@ -22,19 +22,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 type JoinRoomPageProps = {
-  searchParams?: {
+  searchParams?: Promise<{
     q?: string;
     language?: string;
     tag?: string;
-  };
+  }>;
 };
 
 export default async function JoinRoomPage({
   searchParams,
 }: JoinRoomPageProps) {
-  const query = searchParams?.q?.trim() ?? "";
-  const language = searchParams?.language?.trim() ?? "";
-  const tag = searchParams?.tag?.trim() ?? "";
+  const resolvedSearchParams = await searchParams;
+  const query = resolvedSearchParams?.q?.trim() ?? "";
+  const language = resolvedSearchParams?.language?.trim() ?? "";
+  const tag = resolvedSearchParams?.tag?.trim() ?? "";
 
   const rooms = await prisma.room.findMany({
     where: {

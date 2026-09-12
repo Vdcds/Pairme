@@ -13,7 +13,7 @@ import {
   VideoPreview,
   useCallStateHooks,
 } from "@stream-io/video-react-sdk";
-import { useSession } from "next-auth/react";
+import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import {
   ArrowRight,
@@ -186,7 +186,7 @@ function CallLobby({
 }
 
 export function ClientVideoPlayer({ room }: { room: Room }) {
-  const { data: session, status: sessionStatus } = useSession();
+  const { user, isLoaded, isSignedIn } = useUser();
   const [client, setClient] = useState<StreamVideoClient | null>(null);
   const [call, setCall] = useState<Call | null>(null);
   const [status, setStatus] = useState<CallStatus>("lobby");
@@ -194,7 +194,7 @@ export function ClientVideoPlayer({ room }: { room: Room }) {
   const router = useRouter();
 
   useEffect(() => {
-    const userId = session?.user?.id;
+    const userId = user?.id;
     if (!apiKey || !userId) return;
 
     let disposed = false;
@@ -215,8 +215,8 @@ export function ClientVideoPlayer({ room }: { room: Room }) {
       apiKey,
       user: {
         id: String(userId),
-        name: session.user.name ?? "Pairme member",
-        image: session.user.image ?? undefined,
+        name: user.fullName ?? user.username ?? "Pairme member",
+        image: user.imageUrl ?? undefined,
       },
       tokenProvider,
     });
@@ -245,7 +245,7 @@ export function ClientVideoPlayer({ room }: { room: Room }) {
         console.error("Failed to disconnect Stream user:", disconnectError);
       });
     };
-  }, [room.id, session?.user?.id, session?.user?.name, session?.user?.image]);
+  }, [room.id, user?.id, user?.fullName, user?.username, user?.imageUrl]);
 
   const joinCall = async () => {
     if (!apiKey) {
@@ -253,7 +253,7 @@ export function ClientVideoPlayer({ room }: { room: Room }) {
       setStatus("error");
       return;
     }
-    if (!session?.user?.id) {
+    if (!isSignedIn || !user?.id) {
       setError("You need to sign in before joining this room.");
       setStatus("error");
       return;
@@ -305,11 +305,11 @@ export function ClientVideoPlayer({ room }: { room: Room }) {
           {status !== "joined" ? (
             <CallLobby
               room={room}
-              name={session?.user?.name ?? "You"}
+              name={user?.fullName ?? user?.username ?? "You"}
               status={status}
               error={error}
               clientReady={Boolean(client)}
-              sessionLoading={sessionStatus === "loading"}
+              sessionLoading={!isLoaded}
               onJoin={joinCall}
               onBack={() => router.back()}
             />

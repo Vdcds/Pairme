@@ -12,24 +12,19 @@ import {
   Trash2,
   Users,
 } from "lucide-react";
-import dynamic from "next/dynamic";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { RoomRequestControls } from "@/components/room-request-controls";
 import { ProblemWorkbench } from "@/components/problem-workbench";
 import { getPairingProblem } from "@/lib/problems";
+import { ClientVideoPlayer } from "@/components/video-player";
 
-const ClientVideoPlayer = dynamic(
-  () => import("@/components/video-player").then((mod) => mod.ClientVideoPlayer),
-  { ssr: false },
-);
-
-export default async function RoomPage({ params }: { params: { roomid: string } }) {
-  const room = await getRoom(params.roomid);
-  const session = await getServerSession(authOptions);
+export default async function RoomPage({ params }: { params: Promise<{ roomid: string }> }) {
+  const { roomid } = await params;
+  const room = await getRoom(roomid);
+  const currentUser = await getCurrentUser();
 
   if (!room) {
     return (
@@ -39,7 +34,7 @@ export default async function RoomPage({ params }: { params: { roomid: string } 
     );
   }
 
-  const viewerId = session?.user?.id;
+  const viewerId = currentUser?.id;
   const isOwner = room.userId === viewerId;
   const isParticipant = Boolean(viewerId && room.participants.some((participant) => participant.userId === viewerId));
   const canEnterCall = isOwner || isParticipant;
@@ -52,7 +47,7 @@ export default async function RoomPage({ params }: { params: { roomid: string } 
 
   async function handleDeleteRoom() {
     "use server";
-    await deleteRoom(params.roomid);
+    await deleteRoom(roomid);
     revalidatePath("/");
     redirect("/");
   }
@@ -111,7 +106,7 @@ export default async function RoomPage({ params }: { params: { roomid: string } 
           </Card>
 
           {!viewerId ? (
-            <Card className="premium-panel rounded-[22px]"><CardContent className="p-5"><p className="font-semibold text-foreground">Want to help?</p><p className="mt-2 text-sm leading-6 text-muted-foreground">Sign in, then send the owner a focused request.</p><Button asChild className="mt-4 w-full rounded-xl"><Link href="/api/auth/signin">Sign in to request access</Link></Button></CardContent></Card>
+            <Card className="premium-panel rounded-[22px]"><CardContent className="p-5"><p className="font-semibold text-foreground">Want to help?</p><p className="mt-2 text-sm leading-6 text-muted-foreground">Sign in, then send the owner a focused request.</p><Button asChild className="mt-4 w-full rounded-xl"><Link href={`/sign-in?redirect_url=/rooms/${room.id}`} prefetch={false}>Sign in to request access</Link></Button></CardContent></Card>
           ) : !canEnterCall ? (
             <RoomRequestControls roomId={room.id} requestStatus={ownRequest?.status ?? null} />
           ) : null}

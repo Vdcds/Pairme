@@ -1,16 +1,17 @@
+"use server";
+
 import { prisma } from "@/lib/prisma";
-import { Prisma, Room, User } from "@prisma/client";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { Prisma, Room } from "@prisma/client";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function editRoomAction(
   roomId: string,
   roomData: Partial<Omit<Room, "id" | "userId">>
 ): Promise<Prisma.RoomGetPayload<{}> | null> {
   // Get the current session
-  const session = await getServerSession(authOptions);
+  const user = await getCurrentUser();
 
-  if (!session || !session.user) {
+  if (!user) {
     throw new Error("User not authenticated");
   }
 
@@ -25,7 +26,7 @@ export async function editRoomAction(
   }
 
   // Check if the current user is the creator of the room
-  if (existingRoom.user.id !== session.user.id) {
+  if (existingRoom.user.id !== user.id) {
     throw new Error("You do not have permission to edit this room");
   }
 

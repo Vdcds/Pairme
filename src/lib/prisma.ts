@@ -8,11 +8,12 @@ const globalForPrisma = global as unknown as { prisma: PrismaClient };
 export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({
-    log: ["query"],
+    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   });
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 const wait = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+const transientNeonErrors = new Set(["P1001", "P1002", "P1008", "P2024"]);
 
 /** Neon may briefly reject the first connection when a compute wakes from idle. */
 export async function withDatabaseRetry<T>(operation: () => Promise<T>): Promise<T> {
@@ -24,7 +25,7 @@ export async function withDatabaseRetry<T>(operation: () => Promise<T>): Promise
       return await operation();
     } catch (error) {
       lastError = error;
-      if ((error as { code?: string }).code !== "P1001") throw error;
+      if (!transientNeonErrors.has((error as { code?: string }).code ?? "")) throw error;
     }
   }
 

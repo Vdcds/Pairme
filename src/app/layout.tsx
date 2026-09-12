@@ -1,3 +1,4 @@
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import "./globals.css";
@@ -18,13 +19,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Providers>
-          <Suspense fallback={<div className="h-16 border-b border-border" />}>
-            <Navbar />
-          </Suspense>
-          <Toaster />
-          {children}
-        </Providers>
+        <ClerkProvider>
+          <Providers>
+            <Suspense fallback={<div className="h-16 border-b border-border" />}>
+              <Navbar />
+            </Suspense>
+            <Toaster />
+            {children}
+          </Providers>
+        </ClerkProvider>
       </body>
     </html>
   );
