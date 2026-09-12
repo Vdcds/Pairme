@@ -33,6 +33,9 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Loader2, Code2, Github, Zap } from "lucide-react";
+import Link from "next/link";
+import { ExternalLink, X } from "lucide-react";
+import type { PairingProblem } from "@/lib/problems";
 
 const formSchema = z.object({
   name: z
@@ -94,7 +97,7 @@ const tags = [
   "IoT",
 ];
 
-export default function CreateZenRealmForm() {
+export default function CreateZenRealmForm({ initialProblem }: { initialProblem?: PairingProblem }) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -104,12 +107,12 @@ export default function CreateZenRealmForm() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      language: "",
+      name: initialProblem ? `Pair on ${initialProblem.title}` : "",
+      language: initialProblem?.source === "Codeforces" ? "C++" : initialProblem ? "TypeScript" : "",
       githubRepo: "",
-      description: "",
-      roomTags: [],
-      zenLevel: "",
+      description: initialProblem ? `${initialProblem.summary} ${initialProblem.pairingPrompt}` : "",
+      roomTags: initialProblem?.tags ?? [],
+      zenLevel: initialProblem ? "Adept" : "",
     },
   });
 
@@ -131,7 +134,12 @@ export default function CreateZenRealmForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          roomData: values,
+          roomData: {
+            ...values,
+            roomTags: initialProblem
+              ? Array.from(new Set([...values.roomTags, `problem:${initialProblem.slug}`]))
+              : values.roomTags,
+          },
         }),
       });
 
@@ -142,7 +150,7 @@ export default function CreateZenRealmForm() {
 
       const newRoom = await response.json();
       console.log("Room created:", newRoom);
-      router.push("/");
+      router.push(`/rooms/${newRoom.id}`);
     } catch (error) {
       console.error("Error:", error);
       setError(error instanceof Error ? error.message : "We couldn’t create the room. Try again.");
@@ -164,6 +172,22 @@ export default function CreateZenRealmForm() {
           </CardDescription>
         </CardHeader>
         <CardContent className="px-6 py-7 sm:px-8">
+          {initialProblem && (
+            <div className="mb-7 rounded-2xl border border-[#c4a7e7]/20 bg-[#c4a7e7]/[0.07] p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[.18em] text-[#c4a7e7]">Selected problem</p>
+                  <p className="mt-1 text-base font-semibold text-foreground">{initialProblem.title}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{initialProblem.source} · {initialProblem.difficulty}</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button asChild type="button" variant="outline" size="sm" className="rounded-lg border-border bg-card/60 text-foreground hover:bg-secondary"><a href={initialProblem.url} target="_blank" rel="noreferrer">Brief <ExternalLink className="ml-1.5 h-3.5 w-3.5" /></a></Button>
+                  <Button asChild type="button" variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground"><Link href="/problems" aria-label="Choose a different problem"><X className="h-4 w-4" /></Link></Button>
+                </div>
+              </div>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">This brief will be pinned under the call for everyone in the room.</p>
+            </div>
+          )}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField

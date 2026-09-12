@@ -1,133 +1,447 @@
-import { Room } from "@prisma/client";
 import Link from "next/link";
-import { revalidatePath } from "next/cache";
+import type { ReactNode } from "react";
 import {
+  ArrowLeft,
+  ArrowRight,
   ArrowUpRight,
+  Asterisk,
   Braces,
+  Check,
   Code2,
-  Edit3,
-  Radio,
-  ShieldCheck,
+  Github,
+  MonitorUp,
+  Search,
   Sparkles,
-  Trash2,
   Users,
 } from "lucide-react";
-import { getRooms, deleteRoom } from "@/lib/data-fecther";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 
-const languageMarks: Record<string, string> = {
-  JavaScript: "JS",
-  TypeScript: "TS",
-  Python: "PY",
-  Java: "JV",
-  Go: "GO",
-  Rust: "RS",
-};
+const categories = [
+  { label: "All rooms", href: "/join-rooms" },
+  { label: "Problem board", href: "/problems" },
+  { label: "Frontend", href: "/join-rooms?tag=Frontend" },
+  { label: "Backend", href: "/join-rooms?tag=Backend" },
+  { label: "Systems", href: "/join-rooms?tag=Systems" },
+  { label: "Mobile", href: "/join-rooms?tag=Mobile" },
+  { label: "DevOps", href: "/join-rooms?tag=DevOps" },
+];
 
-export default async function Home({ searchParams }: { searchParams: { search?: string } }) {
-  const rooms = await getRooms(searchParams.search);
-
-  async function handleDeleteRoom(roomId: string) {
-    "use server";
-    await deleteRoom(roomId);
-    revalidatePath("/");
-  }
-
+export default function Home() {
   return (
-    <main className="min-h-screen overflow-hidden">
-      <section data-ui="hero" className="relative mx-auto max-w-7xl px-5 pb-14 pt-16 sm:px-8 sm:pb-20 sm:pt-24">
-        <div className="pointer-events-none absolute left-[-14rem] top-[-16rem] h-[34rem] w-[34rem] rounded-full bg-primary/10 blur-[120px]" />
-        <div className="relative grid gap-12 lg:grid-cols-[1.12fr_.88fr] lg:items-center">
-          <div>
-            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/[0.08] px-3 py-1.5 text-xs font-semibold text-[#ebbcba]">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
-              Developers available to pair now
-            </div>
-            <h1 className="max-w-4xl text-5xl font-semibold leading-[0.98] tracking-[-0.055em] text-foreground sm:text-7xl">
-              Find your next
-              <span className="block text-primary">pairing session.</span>
-            </h1>
-            <p className="mt-7 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
-              Bring the problem. Pair with a developer who understands the stack. Leave with working code and a clearer path forward.
-            </p>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <Button asChild size="lg" className="rose-gradient h-12 gap-2 rounded-2xl border-0 px-6 font-semibold text-primary-foreground shadow-[0_14px_34px_rgba(235,111,146,.18)] hover:opacity-95">
-                <Link href="/create-room">Start a room <ArrowUpRight className="h-4 w-4" /></Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="h-12 rounded-2xl border-border bg-card/55 px-6 text-foreground hover:border-accent/40 hover:bg-secondary hover:text-foreground">
-                <a href="#rooms">Browse open rooms</a>
-              </Button>
-            </div>
-          </div>
+    <main className="min-h-screen bg-[#191724] text-[#e0def4]">
+      {/* HERO */}
+      <section className="relative min-h-[calc(100vh-64px)] overflow-hidden bg-[#26233a]">
+        {/* subtle atmosphere — NO GRID / CHECKER TEXTURE */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute right-[-14rem] top-[-18rem] h-[44rem] w-[44rem] rounded-full bg-[#c4a7e7]/[0.055] blur-[170px]" />
 
-          <div className="relative">
-            <div className="premium-panel premium-keyline overflow-hidden rounded-[28px]">
-              <div className="flex items-center justify-between border-b border-border/80 px-5 py-4">
-                <div className="flex items-center gap-2 text-sm font-semibold"><Radio className="h-4 w-4 text-[#9ccfd8]" /> The pairing loop</div>
-                <span className="rounded-full border border-[#9ccfd8]/20 bg-[#31748f]/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#9ccfd8]">Live</span>
-              </div>
-              <div className="space-y-2.5 p-4">
-                {[
-                  { icon: Braces, step: "01", label: "Frame the problem", detail: "Share the stack, repo, and the blocker." },
-                  { icon: Users, step: "02", label: "Choose the right pair", detail: "Accept a focused request from another developer." },
-                  { icon: Sparkles, step: "03", label: "Solve it live", detail: "Open the room, share the screen, and ship." },
-                ].map(({ icon: Icon, step, label, detail }) => (
-                  <div key={step} className="group flex gap-4 rounded-2xl border border-border/70 bg-background/35 p-4 transition hover:border-accent/35 hover:bg-secondary/60">
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-border bg-secondary text-accent"><Icon className="h-4 w-4" /></div>
-                    <div className="min-w-0 flex-1"><div className="flex items-center gap-2"><span className="text-[10px] font-bold tracking-wider text-primary">{step}</span><p className="text-sm font-semibold text-foreground">{label}</p></div><p className="mt-1 text-xs leading-5 text-muted-foreground">{detail}</p></div>
-                  </div>
+          <div className="absolute bottom-[-18rem] left-[24%] h-[38rem] w-[38rem] rounded-full bg-[#ebbcba]/[0.03] blur-[160px]" />
+        </div>
+
+        {/* FULL WIDTH */}
+        <div className="relative grid min-h-[calc(100vh-64px)] w-full lg:grid-cols-[260px_minmax(0,1fr)]">
+          {/* LEFT RAIL */}
+          <aside className="hidden border-r border-[#403d52]/70 px-10 py-12 lg:flex lg:flex-col lg:justify-between xl:px-12">
+            <div>
+              <Link href="/" className="mb-14 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#908caa] transition hover:text-[#e0def4]">
+                <Code2 className="h-4 w-4 text-[#9ccfd8]" /> Pairme
+              </Link>
+
+              <nav className="space-y-3">
+                {categories.map((item, index) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className={`
+                      group flex items-center gap-3 py-2 text-sm transition
+                      ${
+                        index === 0
+                          ? "text-[#e0def4]"
+                          : "text-[#6e6a86] hover:text-[#e0def4]"
+                      }
+                    `}
+                  >
+                    <span
+                      className={`
+                        overflow-hidden text-[#ebbcba] transition-all
+                        ${index === 0 ? "w-5" : "w-0 group-hover:w-5"}
+                      `}
+                    >
+                      →
+                    </span>
+
+                    {item.label}
+                  </Link>
                 ))}
+              </nav>
+            </div>
+
+            <div>
+              <Button
+                asChild
+                variant="outline"
+                className="h-11 w-full rounded-xl border-[#524f67] bg-transparent text-[#e0def4] hover:bg-[#403d52] hover:text-[#e0def4]"
+              >
+                <Link href="/join-rooms">
+                  Show all
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+
+              <div className="mt-5 flex gap-2">
+                <Link href="/problems" aria-label="Open problem board" className="grid h-10 w-10 place-items-center rounded-xl border border-[#524f67] text-[#908caa] transition hover:border-[#c4a7e7]/35 hover:text-[#e0def4]"><ArrowLeft className="h-4 w-4" /></Link>
+                <Link href="/create-room" aria-label="Create a room" className="grid h-10 w-10 place-items-center rounded-xl bg-[#eb6f92] text-[#191724] transition hover:bg-[#f08cab]"><ArrowRight className="h-4 w-4" /></Link>
               </div>
-              <div className="flex items-center gap-2 border-t border-border/80 px-5 py-4 text-xs text-muted-foreground"><ShieldCheck className="h-4 w-4 text-[#9ccfd8]" /> Calls open only after a pairing request is accepted.</div>
+            </div>
+          </aside>
+
+          {/* MAIN HERO */}
+          <div className="flex min-w-0 flex-col px-6 pb-10 pt-10 sm:px-10 lg:px-16 lg:pb-12 lg:pt-16 xl:px-24 2xl:px-32">
+            {/* top meta */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 rounded-full border border-[#524f67] bg-[#191724]/20 px-3 py-1.5 text-[11px] font-medium text-[#908caa]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#9ccfd8]" />
+                Developers solving actual shit
+              </div>
+
+              <div className="hidden items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-[#6e6a86] sm:flex">
+                <Github className="h-3.5 w-3.5" />
+                Repo-aware pairing
+              </div>
+            </div>
+
+            {/* headline */}
+            <div className="mt-16 w-full lg:mt-20">
+              <div className="mb-8 flex items-center gap-5">
+                <LogoMark />
+
+                <div className="hidden h-px flex-1 bg-[#403d52] sm:block" />
+              </div>
+
+              <div className="flex flex-wrap items-end gap-x-6 gap-y-2">
+                <h1 className="text-[4rem] font-medium leading-[0.9] tracking-[-0.065em] text-[#e0def4] sm:text-[6rem] lg:text-[7.4rem] xl:text-[8.6rem] 2xl:text-[9.6rem]">
+                  Pair better.
+                </h1>
+
+                <span className="pb-2 text-2xl font-medium tracking-[-0.04em] text-[#ebbcba] sm:text-4xl lg:pb-4 lg:text-5xl xl:text-6xl">
+                  Ship faster.
+                </span>
+              </div>
+            </div>
+
+            {/* search */}
+            <form action="/join-rooms" className="mt-12 w-full max-w-5xl">
+              <div className="relative border-b border-[#6e6a86]/50 pb-5">
+                <button type="submit" aria-label="Search rooms" className="absolute right-0 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-xl text-[#908caa] transition hover:bg-[#403d52]/65 hover:text-[#e0def4]">
+                  <Search className="h-6 w-6" />
+                </button>
+
+                <Input
+                  name="q"
+                  autoComplete="off"
+                  placeholder="What are you stuck on?"
+                  className="
+                    h-auto border-0 bg-transparent px-0 py-0 pr-12
+                    text-3xl font-medium tracking-[-0.04em]
+                    text-[#e0def4] shadow-none
+                    placeholder:text-[#6e6a86]
+                    focus-visible:ring-0
+                    sm:text-4xl
+                    lg:text-5xl
+                  "
+                />
+              </div>
+            </form>
+
+            <div className="mt-5 flex flex-wrap gap-2 lg:hidden">
+              <Link href="/join-rooms" className="rounded-full border border-[#524f67] px-3 py-1.5 text-xs text-[#908caa] transition hover:border-[#c4a7e7]/35 hover:text-[#e0def4]">All rooms</Link>
+              <Link href="/problems" className="rounded-full border border-[#524f67] px-3 py-1.5 text-xs text-[#908caa] transition hover:border-[#c4a7e7]/35 hover:text-[#e0def4]">Problems</Link>
+              <Link href="/create-room" className="rounded-full bg-[#eb6f92] px-3 py-1.5 text-xs font-medium text-[#191724]">Start a room</Link>
+            </div>
+
+            {/* action row */}
+            <div className="mt-8 flex w-full flex-wrap items-stretch gap-3">
+              <ActionCard
+                href="/problems"
+                eyebrow="Explore"
+                title="Browse problems"
+                icon={<ArrowRight className="h-4 w-4" />}
+              />
+
+              <ActionCard
+                href="/create-room"
+                eyebrow="Stuck?"
+                title="Start a room"
+                icon={<ArrowUpRight className="h-4 w-4" />}
+                wide
+              >
+                <div className="grid h-12 w-12 rotate-6 place-items-center rounded-full bg-[#eb6f92] text-[#191724] shadow-[0_10px_35px_rgba(235,111,146,.16)]">
+                  <Asterisk className="h-6 w-6" />
+                </div>
+              </ActionCard>
+
+              <ActionCard
+                href="/join-rooms"
+                eyebrow="Available?"
+                title="Help someone"
+                icon={<Users className="h-4 w-4" />}
+              />
+            </div>
+
+            {/* bottom notes */}
+            <div className="mt-auto grid gap-4 pt-14 sm:grid-cols-3">
+              <MiniPoint
+                icon={<Braces className="h-4 w-4" />}
+                label="Problem first"
+              >
+                Start with the blocker, not the profile.
+              </MiniPoint>
+
+              <MiniPoint
+                icon={<MonitorUp className="h-4 w-4" />}
+                label="Pair live"
+              >
+                Talk, screen share, debug, ship.
+              </MiniPoint>
+
+              <MiniPoint
+                icon={<Github className="h-4 w-4" />}
+                label="Real context"
+              >
+                Repo, stack, issue, actual code.
+              </MiniPoint>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="rooms" className="border-y border-border/80 bg-[#171520]/65">
-        <div className="mx-auto max-w-7xl px-5 py-11 sm:px-8 sm:py-14">
-          <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#ebbcba]">Room directory</p>
-              <h2 className="mt-2 text-3xl font-semibold tracking-[-0.035em] text-foreground">A good session starts with context.</h2>
-            </div>
-            <p className="rounded-full border border-border bg-card/70 px-3 py-1.5 text-xs text-muted-foreground">
-              {rooms.length} {rooms.length === 1 ? "room" : "rooms"} {searchParams.search ? `matching “${searchParams.search}”` : "open now"}
-            </p>
-          </div>
+      {/* LOWER EDITORIAL SECTIONS — ALSO FULL WIDTH */}
+      <section className="border-t border-[#403d52]/70 bg-[#191724]">
+        <div className="grid w-full lg:grid-cols-3">
+          {/* POST */}
+          <article className="relative min-h-[430px] overflow-hidden border-b border-[#403d52]/70 p-8 sm:p-10 lg:border-b-0 lg:border-r xl:p-12">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9ccfd8]">
+                01 — Post
+              </span>
 
-          {rooms.length ? (
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {rooms.map((room: Room) => (
-                <Card data-ui="room-card" key={room.id} className="group premium-keyline flex min-h-[280px] flex-col overflow-hidden border-border/80 bg-card/85 shadow-[0_18px_46px_rgba(10,8,18,.18)] transition duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_24px_58px_rgba(10,8,18,.3)]">
-                  <CardHeader className="pb-3">
-                    <div className="mb-5 flex items-center justify-between">
-                      <span className="grid h-11 w-11 place-items-center rounded-2xl border border-primary/20 bg-primary/10 text-xs font-bold text-primary">{languageMarks[room.Language] ?? "</>"}</span>
-                      <Badge variant="secondary" className="rounded-full border border-border bg-secondary px-2.5 py-1 text-muted-foreground">{room.Language}</Badge>
-                    </div>
-                    <CardTitle className="line-clamp-2 text-xl leading-7 tracking-[-0.02em] text-foreground">{room.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex-1 pb-5">
-                    <p className="line-clamp-3 text-sm leading-6 text-muted-foreground">{room.description || "A working session looking for a second set of eyes."}</p>
-                    <div className="mt-5 flex flex-wrap gap-1.5">{room.Roomtags.slice(0, 3).map((tag) => <span key={tag} className="rounded-full border border-[#c4a7e7]/15 bg-[#c4a7e7]/[0.07] px-2.5 py-1 text-[11px] font-medium text-[#c4a7e7]">{tag}</span>)}</div>
-                  </CardContent>
-                  <CardFooter className="gap-2 border-t border-border/70 bg-background/20 pt-4">
-                    <Button asChild className="flex-1 gap-2 rounded-xl bg-foreground font-semibold text-background hover:bg-primary hover:text-primary-foreground"><Link href={`/rooms/${room.id}`}>View room <ArrowUpRight className="h-4 w-4" /></Link></Button>
-                    <Button asChild size="icon" variant="outline" className="rounded-xl border-border bg-transparent text-muted-foreground hover:bg-secondary hover:text-foreground"><Link href={`/edit-room/${room.id}`} aria-label={`Edit ${room.name}`}><Edit3 className="h-4 w-4" /></Link></Button>
-                    <form action={handleDeleteRoom.bind(null, room.id)}><Button type="submit" size="icon" variant="ghost" className="rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive" aria-label={`Delete ${room.name}`}><Trash2 className="h-4 w-4" /></Button></form>
-                  </CardFooter>
-                </Card>
-              ))}
+              <Braces className="h-5 w-5 text-[#6e6a86]" />
             </div>
-          ) : (
-            <Card className="premium-keyline border-dashed border-border bg-card/65">
-              <CardContent className="py-20 text-center"><div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl border border-primary/20 bg-primary/10"><Code2 className="h-6 w-6 text-primary" /></div><h3 className="mt-5 text-lg font-semibold text-foreground">No rooms found</h3><p className="mt-2 text-sm text-muted-foreground">Start with a clear problem and invite the right person in.</p><Button asChild className="mt-5 rounded-xl"><Link href="/create-room">Create the first room</Link></Button></CardContent>
-            </Card>
-          )}
+
+            <div className="mt-16">
+              <h2 className="max-w-sm text-3xl font-medium leading-[1.05] tracking-[-0.045em] text-[#e0def4] sm:text-4xl">
+                Give people
+                <br />
+                the actual context.
+              </h2>
+
+              <p className="mt-5 max-w-xs text-sm leading-6 text-[#908caa]">
+                Repo. Stack. Problem. Enough information for another developer
+                to know whether they can actually help.
+              </p>
+            </div>
+
+            <div className="absolute bottom-8 left-8 right-8 rounded-[18px] border border-[#403d52] bg-[#1f1d2e] p-4 font-mono text-[11px] sm:left-10 sm:right-10 lg:left-10 lg:right-10 xl:left-12 xl:right-12">
+              <TerminalLine name="repo" value="vdcds/pairme" />
+              <TerminalLine name="stack" value="Next.js · Stream" />
+              <TerminalLine name="problem" value="reconnect race" />
+            </div>
+          </article>
+
+          {/* PAIR */}
+          <article className="relative min-h-[430px] overflow-hidden border-b border-[#403d52]/70 p-8 sm:p-10 lg:border-b-0 lg:border-r xl:p-12">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#ebbcba]">
+                02 — Pair
+              </span>
+
+              <MonitorUp className="h-5 w-5 text-[#6e6a86]" />
+            </div>
+
+            <div className="mt-16">
+              <h2 className="max-w-sm text-3xl font-medium leading-[1.05] tracking-[-0.045em] text-[#e0def4] sm:text-4xl">
+                Talk through it.
+                <br />
+                Break things responsibly.
+              </h2>
+
+              <p className="mt-5 max-w-xs text-sm leading-6 text-[#908caa]">
+                Open a focused session with video, screen sharing, reactions,
+                and another developer who understands the stack.
+              </p>
+            </div>
+
+            <div className="absolute bottom-8 left-8 right-8 flex items-end justify-between rounded-[22px] border border-[#403d52] bg-[#26233a] p-5 sm:left-10 sm:right-10 lg:left-10 lg:right-10 xl:left-12 xl:right-12">
+              <div>
+                <p className="text-xs font-medium text-[#e0def4]">
+                  Pair session
+                </p>
+
+                <p className="mt-1 text-[11px] text-[#6e6a86]">
+                  screen shared · debugging
+                </p>
+              </div>
+
+              <div className="flex -space-x-2">
+                <Avatar>V</Avatar>
+                <Avatar>A</Avatar>
+              </div>
+            </div>
+          </article>
+
+          {/* SHIP */}
+          <article className="flex min-h-[430px] flex-col border-[#403d52]/70 p-8 sm:p-10 xl:p-12">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#f6c177]">
+                03 — Ship
+              </span>
+
+              <Sparkles className="h-5 w-5 text-[#6e6a86]" />
+            </div>
+
+            <div className="mt-14">
+              <h2 className="max-w-md text-3xl font-medium leading-[1.04] tracking-[-0.045em] text-[#e0def4] sm:text-4xl xl:text-[2.75rem]">
+                Leave with
+                <br />
+                something useful.
+              </h2>
+
+              <p className="mt-5 max-w-md text-sm leading-7 text-[#908caa]">
+                A fix, a PR, notes, or at least a much clearer idea of why the
+                damn thing is broken.
+              </p>
+            </div>
+
+            <div className="mt-auto pt-10">
+              <div className="rounded-[26px] bg-[#e0def4] p-6 text-[#191724] sm:p-7">
+                <div className="flex items-start justify-between gap-6">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#6e6a86]">
+                      Session outcome
+                    </p>
+
+                    <p className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
+                      PR #82 ready.
+                    </p>
+                  </div>
+
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#9ccfd8]">
+                    <Check className="h-5 w-5 stroke-[2.5]" />
+                  </div>
+                </div>
+
+                <div className="mt-8 flex flex-wrap gap-x-7 gap-y-2 text-xs font-medium text-[#6e6a86]">
+                  <span>47 min</span>
+                  <span>3 notes</span>
+                  <span>Would pair again</span>
+                </div>
+              </div>
+            </div>
+          </article>
         </div>
       </section>
     </main>
+  );
+}
+
+function LogoMark() {
+  return (
+    <div className="flex h-[72px] items-stretch gap-1">
+      <div className="w-[72px] rounded-l-full rounded-r-[4px] bg-[#e0def4]" />
+      <div className="w-[72px] rounded-br-[36px] bg-[#e0def4]" />
+    </div>
+  );
+}
+
+function ActionCard({
+  href,
+  eyebrow,
+  title,
+  icon,
+  wide = false,
+  children,
+}: {
+  href: string;
+  eyebrow: string;
+  title: string;
+  icon: ReactNode;
+  wide?: boolean;
+  children?: ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`
+        group flex min-h-[118px] items-end justify-between gap-6
+        rounded-[22px] border border-[#524f67]
+        bg-[#1f1d2e] p-4
+        transition duration-200
+        hover:-translate-y-1
+        hover:border-[#c4a7e7]/35
+        hover:bg-[#2c2940]
+
+        ${wide ? "min-w-[270px] flex-1 xl:max-w-[430px]" : "min-w-[210px]"}
+      `}
+    >
+      <div>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#6e6a86]">
+          {eyebrow}
+        </p>
+
+        <div className="mt-2 flex items-center gap-2 text-sm font-medium text-[#e0def4]">
+          {title}
+          {icon}
+        </div>
+      </div>
+
+      {children ?? (
+        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[#524f67] text-[#908caa] transition group-hover:border-[#c4a7e7]/30 group-hover:bg-[#c4a7e7] group-hover:text-[#191724]">
+          <ArrowRight className="h-4 w-4" />
+        </div>
+      )}
+    </Link>
+  );
+}
+
+function MiniPoint({
+  icon,
+  label,
+  children,
+}: {
+  icon: ReactNode;
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="border-t border-[#403d52]/70 pt-4">
+      <div className="flex items-center gap-2 text-xs font-medium text-[#e0def4]">
+        <span className="text-[#9ccfd8]">{icon}</span>
+        {label}
+      </div>
+
+      <p className="mt-2 max-w-[240px] text-[11px] leading-5 text-[#6e6a86]">
+        {children}
+      </p>
+    </div>
+  );
+}
+
+function TerminalLine({ name, value }: { name: string; value: string }) {
+  return (
+    <div className="flex gap-4 py-1">
+      <span className="w-16 shrink-0 text-[#6e6a86]">{name}</span>
+
+      <span className="truncate text-[#9ccfd8]">{value}</span>
+    </div>
+  );
+}
+
+function Avatar({ children }: { children: ReactNode }) {
+  return (
+    <div className="grid h-9 w-9 place-items-center rounded-full border-2 border-[#26233a] bg-[#c4a7e7] text-[11px] font-bold text-[#191724]">
+      {children}
+    </div>
   );
 }

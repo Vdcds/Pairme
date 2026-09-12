@@ -7,7 +7,7 @@ export default function Page({
 }) {
   return (
     <main className="flex items-center justify-center w-full">
-      <Home searchParams={searchParams} />
+      <Home/>
     </main>
   );
 }

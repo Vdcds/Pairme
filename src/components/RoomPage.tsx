@@ -19,6 +19,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { RoomRequestControls } from "@/components/room-request-controls";
+import { ProblemWorkbench } from "@/components/problem-workbench";
+import { getPairingProblem } from "@/lib/problems";
 
 const ClientVideoPlayer = dynamic(
   () => import("@/components/video-player").then((mod) => mod.ClientVideoPlayer),
@@ -45,6 +47,8 @@ export default async function RoomPage({ params }: { params: { roomid: string } 
   const pendingRequests = isOwner
     ? room.joinRequests.map((request) => ({ id: request.id, message: request.message, requester: request.user }))
     : [];
+  const problem = getPairingProblem(room.Roomtags.find((tag) => tag.startsWith("problem:"))?.replace("problem:", ""));
+  const visibleTags = room.Roomtags.filter((tag) => !tag.startsWith("problem:"));
 
   async function handleDeleteRoom() {
     "use server";
@@ -68,6 +72,7 @@ export default async function RoomPage({ params }: { params: { roomid: string } 
       </header>
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="space-y-5">
         <section className="premium-keyline overflow-hidden rounded-[26px] border border-border/80 bg-card shadow-[0_28px_80px_rgba(10,8,18,.32)]">
           {canEnterCall ? (
             <ClientVideoPlayer room={room} />
@@ -84,13 +89,15 @@ export default async function RoomPage({ params }: { params: { roomid: string } 
             </div>
           )}
         </section>
+        {problem && <ProblemWorkbench problem={problem} roomId={room.id} />}
+        </div>
 
         <aside className="space-y-4 xl:sticky xl:top-[88px] xl:self-start">
           <Card className="premium-panel premium-keyline rounded-[22px]">
             <CardContent className="space-y-6 p-5">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[.18em] text-[#908caa]">Focus areas</p>
-                <div className="mt-3 flex flex-wrap gap-2">{room.Roomtags.map((tag) => <Badge key={tag} className="gap-1 rounded-full border border-[#c4a7e7]/15 bg-[#c4a7e7]/[0.08] text-[#c4a7e7] hover:bg-[#c4a7e7]/10"><Tags className="h-3 w-3" />{tag}</Badge>)}</div>
+                <div className="mt-3 flex flex-wrap gap-2">{visibleTags.map((tag) => <Badge key={tag} className="gap-1 rounded-full border border-[#c4a7e7]/15 bg-[#c4a7e7]/[0.08] text-[#c4a7e7] hover:bg-[#c4a7e7]/10"><Tags className="h-3 w-3" />{tag}</Badge>)}</div>
               </div>
               <div className="h-px bg-border/80" />
               <div>
@@ -104,7 +111,7 @@ export default async function RoomPage({ params }: { params: { roomid: string } 
           </Card>
 
           {!viewerId ? (
-            <Card className="premium-panel rounded-[22px]"><CardContent className="p-5"><p className="font-semibold text-foreground">Want to help?</p><p className="mt-2 text-sm leading-6 text-muted-foreground">Sign in, then send the owner a focused request.</p><Button asChild className="mt-4 w-full rounded-xl"><Link href="/">Sign in to request access</Link></Button></CardContent></Card>
+            <Card className="premium-panel rounded-[22px]"><CardContent className="p-5"><p className="font-semibold text-foreground">Want to help?</p><p className="mt-2 text-sm leading-6 text-muted-foreground">Sign in, then send the owner a focused request.</p><Button asChild className="mt-4 w-full rounded-xl"><Link href="/api/auth/signin">Sign in to request access</Link></Button></CardContent></Card>
           ) : !canEnterCall ? (
             <RoomRequestControls roomId={room.id} requestStatus={ownRequest?.status ?? null} />
           ) : null}

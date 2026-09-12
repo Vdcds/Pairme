@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import {
   ChevronDown,
+  BookOpen,
   Code2,
   LogOut,
   Menu,
@@ -34,7 +35,8 @@ export default function Navbar() {
 
   const navItems = [
     { name: "Rooms", href: "/", icon: Users },
-    { name: "Join", href: "/join-room", icon: Code2 },
+    { name: "Join", href: "/join-rooms", icon: Code2 },
+    { name: "Problems", href: "/problems", icon: BookOpen },
   ];
 
   const isActive = (href: string) => href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -42,10 +44,14 @@ export default function Navbar() {
   const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const query = searchQuery.trim();
-    router.push(query ? `/?search=${encodeURIComponent(query)}` : "/");
+    router.push(query ? `/join-rooms?q=${encodeURIComponent(query)}` : "/join-rooms");
     setIsMenuOpen(false);
   };
   const handleSignIn = () => signIn(process.env.NODE_ENV === "development" ? "dev-guest" : "google", { callbackUrl: pathname || "/" });
+
+  // The homepage owns its navigation in the editorial left rail. Keeping the
+  // global bar there would repeat the same choices and flatten the layout.
+  if (pathname === "/") return null;
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/75 bg-[#191724]/82 backdrop-blur-2xl">
